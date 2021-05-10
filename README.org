@@ -226,15 +226,15 @@ and load them lazily. You can adapt it to your way of managing packages. Some no
 [[https://github.com/emacs-helm/helm-mu][helm-mu]], [[https://github.com/jeremy-compostella/org-msg][org-msg]]. 
 
 #+begin_src elisp
-  (setf (alist-get 'trash mu4e-marks)
-        '(:char ("d" . "▼")
-                :prompt "dtrash"
-                :dyn-target (lambda (target msg) (mu4e-get-trash-folder msg))
-                ;; Here's the main difference to the regular trash mark, no +T
-                ;; before -N so the message is not marked as IMAP-deleted:
-                :action (lambda (docid msg target)
-                          (mu4e~proc-move docid
-                                          (mu4e~mark-check-target target) "+S-u-N"))))
+(setf (alist-get 'trash mu4e-marks)
+      '(:char ("d" . "▼")
+              :prompt "dtrash"
+              :dyn-target (lambda (target msg) (mu4e-get-trash-folder msg))
+              ;; Here's the main difference to the regular trash mark, no +T
+              ;; before -N so the message is not marked as IMAP-deleted:
+              :action (lambda (docid msg target)
+                        (mu4e~proc-move docid
+                                        (mu4e~mark-check-target target) "+S-u-N"))))
 #+end_src
 
 I picked this code and realized that, at least for Google, if you flag a message =trashed=, it just disappears. This code
@@ -249,40 +249,40 @@ synced to the server and gets deleted according to a policy you control.
                                    (sent-action 'sent)
                                    (name "Daniel Fleischer")
                                    (sig "Daniel Fleischer"))
-    (let
-        ((inbox    (concat "/" maildir "/Inbox"))  
-         (sent	   (concat "/" maildir "/Sent"))
-	     (trash	   (concat "/" maildir "/Trash"))
-	     (refile   (concat "/" maildir "/Archive"))
-	     (draft	   (concat "/" maildir "/Drafts")))
-      
-      `(make-mu4e-context
-        :name ,c-name
-        :match-func (lambda (msg)
-		              (when msg
-                        (string-match-p (concat "^/" ,maildir "/")
-                                        (mu4e-message-field msg :maildir))))
-        :vars '((user-mail-address . ,mail)
-	            (user-full-name . ,name)
-	            (mu4e-sent-folder . ,sent)
-	            (mu4e-drafts-folder . ,draft)
-	            (mu4e-trash-folder . ,trash)
-                (mu4e-refile-folder . ,refile)
-	            (mu4e-compose-signature . (concat ,sig))
-                (mu4e-sent-messages-behavior . ,sent-action)
-	            (smtpmail-smtp-user . ,smtp-mail)
-	            (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
-                (smtpmail-auth-credentials . '((,smtp ,smtp-port ,smtp-mail nil)))
-	            (smtpmail-default-smtp-server . ,smtp)
-	            (smtpmail-smtp-server . ,smtp)
-                (smtpmail-stream-type . ,smtp-type)
-	            (smtpmail-smtp-service . ,smtp-port)
-	            (mu4e-maildir-shortcuts . 
-                                        ((,inbox   . ?i)
-									     (,sent    . ?s)
-									     (,trash   . ?t)
-									     (,refile  . ?a)
-									     (,draft   . ?d)))))))
+  (let
+      ((inbox    (concat "/" maildir "/Inbox"))  
+       (sent	   (concat "/" maildir "/Sent"))
+	   (trash	   (concat "/" maildir "/Trash"))
+	   (refile   (concat "/" maildir "/Archive"))
+	   (draft	   (concat "/" maildir "/Drafts")))
+    
+    `(make-mu4e-context
+      :name ,c-name
+      :match-func (lambda (msg)
+		            (when msg
+                      (string-match-p (concat "^/" ,maildir "/")
+                                      (mu4e-message-field msg :maildir))))
+      :vars '((user-mail-address . ,mail)
+	          (user-full-name . ,name)
+	          (mu4e-sent-folder . ,sent)
+	          (mu4e-drafts-folder . ,draft)
+	          (mu4e-trash-folder . ,trash)
+              (mu4e-refile-folder . ,refile)
+	          (mu4e-compose-signature . (concat ,sig))
+              (mu4e-sent-messages-behavior . ,sent-action)
+	          (smtpmail-smtp-user . ,smtp-mail)
+	          (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
+              (smtpmail-auth-credentials . '((,smtp ,smtp-port ,smtp-mail nil)))
+	          (smtpmail-default-smtp-server . ,smtp)
+	          (smtpmail-smtp-server . ,smtp)
+              (smtpmail-stream-type . ,smtp-type)
+	          (smtpmail-smtp-service . ,smtp-port)
+	          (mu4e-maildir-shortcuts . 
+                                      ((,inbox   . ?i)
+									   (,sent    . ?s)
+									   (,trash   . ?t)
+									   (,refile  . ?a)
+									   (,draft   . ?d)))))))
 #+end_src
 
 That's the macro to create contexts or identities. It's assuming you have a consistent maildirs structure, like
