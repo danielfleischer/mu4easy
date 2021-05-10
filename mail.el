@@ -101,9 +101,9 @@
     (let
         ((inbox    (concat "/" maildir "/Inbox"))  
          (sent	   (concat "/" maildir "/Sent"))
-	     (trash	   (concat "/" maildir "/Trash"))
-	     (refile   (concat "/" maildir "/Archive"))
-	     (draft	   (concat "/" maildir "/Drafts")))
+	 (trash	   (concat "/" maildir "/Trash"))
+	 (refile   (concat "/" maildir "/Archive"))
+	 (draft	   (concat "/" maildir "/Drafts")))
       
       `(make-mu4e-context
         :name ,c-name
@@ -112,26 +112,26 @@
                         (string-match-p (concat "^/" ,maildir "/")
                                         (mu4e-message-field msg :maildir))))
         :vars '((user-mail-address . ,mail)
-	            (user-full-name . ,name)
-	            (mu4e-sent-folder . ,sent)
-	            (mu4e-drafts-folder . ,draft)
-	            (mu4e-trash-folder . ,trash)
+	        (user-full-name . ,name)
+	        (mu4e-sent-folder . ,sent)
+	        (mu4e-drafts-folder . ,draft)
+	        (mu4e-trash-folder . ,trash)
                 (mu4e-refile-folder . ,refile)
-	            (mu4e-compose-signature . (concat ,sig))
+	        (mu4e-compose-signature . (concat ,sig))
                 (mu4e-sent-messages-behavior . ,sent-action)
-	            (smtpmail-smtp-user . ,smtp-mail)
-	            (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
+	        (smtpmail-smtp-user . ,smtp-mail)
+	        (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
                 (smtpmail-auth-credentials . '((,smtp ,smtp-port ,smtp-mail nil)))
-	            (smtpmail-default-smtp-server . ,smtp)
-	            (smtpmail-smtp-server . ,smtp)
+	        (smtpmail-default-smtp-server . ,smtp)
+	        (smtpmail-smtp-server . ,smtp)
                 (smtpmail-stream-type . ,smtp-type)
-	            (smtpmail-smtp-service . ,smtp-port)
-	            (mu4e-maildir-shortcuts . 
-                                        ((,inbox   . ?i)
-									     (,sent    . ?s)
-									     (,trash   . ?t)
-									     (,refile  . ?a)
-									     (,draft   . ?d)))))))
+	        (smtpmail-smtp-service . ,smtp-port)
+	        (mu4e-maildir-shortcuts . 
+                                            ((,inbox   . ?i)
+				             (,sent    . ?s)
+				             (,trash   . ?t)
+				             (,refile  . ?a)
+				             (,draft   . ?d)))))))
   
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Variables
@@ -171,11 +171,11 @@
 
         df/inbox-query (mapconcat
                         (lambda (d) (format "m:/%s/Inbox" d))
-                        df-mail-accounts " OR ")
+                          df-mail-accounts " OR ")
         df/today-query (concat "date:today..now AND NOT "
-                               (mapconcat
-                                (lambda (d) (format "m:/%s/Trash" d))
-                                df-mail-accounts " AND NOT "))
+                          (mapconcat
+                           (lambda (d) (format "m:/%s/Trash" d))
+                           df-mail-accounts " AND NOT "))
         df/trash-query (mapconcat
                         (lambda (d) (format "m:/%s/Trash" d))
                         df-mail-accounts " OR ")
