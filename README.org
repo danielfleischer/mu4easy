@@ -1,0 +1,376 @@
+* mu4e Config
+:PROPERTIES:
+:CREATED:  [2021-05-09 Sun 22:31]
+:END:
+
+Complete and working mu4e setup using =mbsync=. I'm using Google, Apple, GMX and Proton together with their aliases. I'm
+loading several packages because they're nice but the main contribution is the context-generating macro which lets you add
+and manage accounts with ease.
+
+I call the lisp via a simple ~(load "~/.emacs.d/mail.el")~. Feel free to grab any snippet, or the entire files. *Comments and
+suggestions are welcomed*.
+
+** mbsync
+:PROPERTIES:
+:CREATED:  [2021-05-09 Sun 22:39]
+:END:
+
+The important part is to normalize all accounts to have the same structure, containing the folders Inbox, Archive, Sent,
+Trash, Drafts and Spam. Let's go over each provider and examine the gotchas.
+
+*** Google
+:PROPERTIES:
+:CREATED:  [2021-05-09 Sun 22:42]
+:END:
+
+#+begin_src conf
+IMAPAccount Gmail
+Host imap.gmail.com
+User a@gmail.com
+PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine imap.gmail.com login a@gmail.com/ {print $NF}'"
+AuthMechs LOGIN
+SSLType IMAPS
+SSLVersions TLSv1.2
+CertificateFile /usr/local/etc/openssl@1.1/cert.pem
+
+MaildirStore Gmail-local
+Path ~/Mail/Gmail/
+Inbox ~/Mail/Gmail/Inbox
+SubFolders Verbatim
+
+IMAPStore Gmail-remote
+Account Gmail
+
+Channel Gmail-inbox
+Far :Gmail-remote:"INBOX"
+Near :Gmail-local:"INBOX"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Channel Gmail-trash
+Far :Gmail-remote:"[Gmail]/Trash"
+Near :Gmail-local:"Trash"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Channel Gmail-spam
+Far :Gmail-remote:"[Gmail]/Spam"
+Near :Gmail-local:"Spam"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+    
+Channel Gmail-all
+Far :Gmail-remote:"[Gmail]/All Mail"
+Near :Gmail-local:"Archive"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Channel Gmail-drafts
+Far :Gmail-remote:"[Gmail]/Drafts"
+Near :Gmail-local:"Drafts"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Group Gmail
+Channel Gmail-inbox
+Channel Gmail-trash
+Channel Gmail-all
+Channel Gmail-spam
+Channel Gmail-drafts
+#+end_src
+
+First is the =PassCmd=. I assume all passwords (and application specific passwords) are in =~/.authinfo.gpg= with the
+password key-value pair last (see the =NF= variable in =awk= pointing to the last column).
+
+Next, Google has the structure =[Gmail]/...= so we use explicit far/near definitions. We'll drop them in the next
+providers.
+
+Finally, unlike other providers, we're not going to sync the Sent folders because Google is saving all email in the All
+Mails folders and you'll end up with duplicates locally.
+
+*** Apple
+:PROPERTIES:
+:CREATED:  [2021-05-09 Sun 22:46]
+:END:
+#+begin_src conf
+IMAPAccount Apple
+Host imap.mail.me.com
+PORT 993
+User a@icloud.com
+PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine imap.mail.me.com/ {print $NF}'"
+AuthMechs LOGIN
+SSLType IMAPS
+SSLVersion TLSv1.2
+CertificateFile /usr/local/etc/openssl@1.1/cert.pem
+
+MaildirStore Apple-local
+Path ~/Mail/Apple/
+Inbox ~/Mail/Apple/Inbox
+SubFolders Verbatim
+
+IMAPStore Apple-remote
+Account Apple
+
+Channel Apple-all
+Far :Apple-remote:
+Near :Apple-local:
+Patterns "INBOX" "Archive" "Trash" "Spam" "Drafts"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+    
+Channel Apple-sent
+Far :Apple-remote:"Sent Messages"
+Near :Apple-local:"Sent"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Group Apple
+Channel Apple-sent
+Channel Apple-all
+#+end_src
+
+Here we use the =Patterns= key to quickly select the folders we're interested in. It turns the Sent folders has many
+conventions; at Apple it's called Sent Messages.
+
+*** GMX
+:PROPERTIES:
+:CREATED:  [2021-05-09 Sun 22:48]
+:END:
+
+#+begin_src conf
+IMAPAccount GMX
+Host imap.gmx.com
+User a@gmx.com
+PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine imap.gmx.com login a@gmx.com/ {print $NF}'"
+AuthMechs LOGIN
+SSLType IMAPS
+SSLVersion TLSv1.2
+CertificateFile /usr/local/etc/openssl@1.1/cert.pem
+
+MaildirStore GMX-local
+Path ~/Mail/GMX/
+Inbox ~/Mail/GMX/Inbox
+SubFolders Verbatim
+
+IMAPStore GMX-remote
+Account GMX
+
+Channel GMX
+Far :GMX-remote:
+Near :GMX-local:
+Patterns "INBOX" "Archive" "Trash" "Spam" "Drafts" "Sent"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+#+end_src
+
+*** Proton
+:PROPERTIES:
+:CREATED:  [2021-05-09 Sun 22:49]
+:END:
+
+#+begin_src conf
+IMAPAccount Proton
+Host 127.0.0.1
+PORT 1111
+User a@protonmail.com
+PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine 127.0.0.1/ {print $NF}'"
+AuthMechs LOGIN
+SSLType STARTTLS
+SSLVersion TLSv1.2
+CertificateFile /usr/local/etc/openssl@1.1/cert.pem
+
+MaildirStore Proton-local
+Path ~/Mail/Proton/
+Inbox ~/Mail/Proton/Inbox
+SubFolders Verbatim
+
+IMAPStore Proton-remote
+Account Proton
+
+Channel Proton
+Far :Proton-remote:
+Near :Proton-local:
+Patterns "INBOX" "Archive" "Trash" "Spam" "Drafts" "Sent"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+#+end_src
+
+In order to us Proton, one needs to install a bridge application. It specifies the IMAP and SMTP ports to use
+(non-standard).
+
+** mu4e
+:PROPERTIES:
+:CREATED:  [2021-05-09 Sun 22:53]
+:END:
+
+Let's go over the important parts of the elisp code. I'm using =use-package= and =quelpa= to download packages from github
+and load them lazily. You can adapt it to your way of managing packages. Some notable packages are [[https://github.com/panjie/mu4e-goodies][mu4e-goodies]],
+[[https://github.com/emacs-helm/helm-mu][helm-mu]], [[https://github.com/jeremy-compostella/org-msg][org-msg]]. 
+
+#+begin_src elisp
+  (setf (alist-get 'trash mu4e-marks)
+        '(:char ("d" . "▼")
+                :prompt "dtrash"
+                :dyn-target (lambda (target msg) (mu4e-get-trash-folder msg))
+                ;; Here's the main difference to the regular trash mark, no +T
+                ;; before -N so the message is not marked as IMAP-deleted:
+                :action (lambda (docid msg target)
+                          (mu4e~proc-move docid
+                                          (mu4e~mark-check-target target) "+S-u-N"))))
+#+end_src
+
+I picked this code and realized that, at least for Google, if you flag a message =trashed=, it just disappears. This code
+instead flags the message as =seen=, removes the flags =unseen= and =new= and finally, moves it to the Trash folder, which is
+synced to the server and gets deleted according to a policy you control.
+
+#+begin_src elisp
+(cl-defmacro df/mu4e-context (&key c-name maildir mail smtp
+                                   (smtp-mail mail)
+                                   (smtp-port 587)
+                                   (smtp-type 'starttls)
+                                   (sent-action 'sent)
+                                   (name "Daniel Fleischer")
+                                   (sig "Daniel Fleischer"))
+    (let
+        ((inbox    (concat "/" maildir "/Inbox"))  
+         (sent	   (concat "/" maildir "/Sent"))
+	     (trash	   (concat "/" maildir "/Trash"))
+	     (refile   (concat "/" maildir "/Archive"))
+	     (draft	   (concat "/" maildir "/Drafts")))
+      
+      `(make-mu4e-context
+        :name ,c-name
+        :match-func (lambda (msg)
+		              (when msg
+                        (string-match-p (concat "^/" ,maildir "/")
+                                        (mu4e-message-field msg :maildir))))
+        :vars '((user-mail-address . ,mail)
+	            (user-full-name . ,name)
+	            (mu4e-sent-folder . ,sent)
+	            (mu4e-drafts-folder . ,draft)
+	            (mu4e-trash-folder . ,trash)
+                (mu4e-refile-folder . ,refile)
+	            (mu4e-compose-signature . (concat ,sig))
+                (mu4e-sent-messages-behavior . ,sent-action)
+	            (smtpmail-smtp-user . ,smtp-mail)
+	            (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
+                (smtpmail-auth-credentials . '((,smtp ,smtp-port ,smtp-mail nil)))
+	            (smtpmail-default-smtp-server . ,smtp)
+	            (smtpmail-smtp-server . ,smtp)
+                (smtpmail-stream-type . ,smtp-type)
+	            (smtpmail-smtp-service . ,smtp-port)
+	            (mu4e-maildir-shortcuts . 
+                                        ((,inbox   . ?i)
+									     (,sent    . ?s)
+									     (,trash   . ?t)
+									     (,refile  . ?a)
+									     (,draft   . ?d)))))))
+#+end_src
+
+That's the macro to create contexts or identities. It's assuming you have a consistent maildirs structure, like
+specified in the =mbsync= config, i.e. all account names are on a single level and then below them you have Inbox,
+Archive, Trash, Sent, Spam and Drafts for each one. To match the context I'm just looking at the maildir the message is
+in. Some defaults in the function are the SMTP encryption and what to do with sent messages (either delete them in the
+case of Google or save them in the Sent folder; more on that in the contexts examples).
+
+Next there are some variables settings; these are set to taste, feel free to experiment with them. Next are the
+bookmarks, which are very convenient both for jumping and for reading the read/unread counts.
+
+*Tip*: the bookmarks query can be either a function or a string. If it's a function, there is no read/unread count. I'm
+using a string generated from a function; if you first eval the string and then set the variable, you do get counts.
+
+Finally, setting up the accounts:
+#+begin_src elisp
+(setq mu4e-contexts
+
+      `(,(df/mu4e-context
+          :c-name  "Google"
+          :maildir "Gmail"
+          :mail    "a@gmail.com"
+          :smtp    "smtp.gmail.com"
+          :sent-action delete)
+        
+        ,(df/mu4e-context
+          :c-name  "1-GMX"
+          :maildir "GMX"
+          :mail    "a@gmx.com"
+          :smtp    "mail.gmx.com")
+        
+        ,(df/mu4e-context
+          :c-name    "2-GMX-alias"
+          :maildir   "GMX"
+          :mail      "a.alias@gmx.com"
+          :smtp      "mail.gmx.com"
+          :smtp-mail "a@gmx.com")
+        
+        ,(df/mu4e-context
+          :c-name  "Apple"
+          :maildir "Apple"
+          :mail    "a@icloud.com"
+          :smtp    "smtp.mail.me.com")
+        
+        ,(df/mu4e-context
+          :c-name  "3-Apple-alias"
+          :maildir "Apple"
+          :mail    "a@me.com"
+          :smtp    "smtp.mail.me.com"
+          :smtp-mail "a@icloud.com")
+        
+        ,(df/mu4e-context
+          :c-name    "Proton"
+          :maildir   "Proton"
+          :mail      "a@protonmail.com"
+          :smtp      "127.0.0.1"
+          :smtp-type ssl
+          :smtp-port 999)
+        
+        ,(df/mu4e-context
+          :c-name    "4-Proton-alias"
+          :maildir   "Proton"
+          :mail      "a@pm.com"
+          :smtp      "127.0.0.1"
+          :smtp-mail "a@protonmail.com"
+          :smtp-type ssl
+          :smtp-port 999)))
+#+end_src
+
+_Important points:_
+1. Jumping to contexts is based on their first (unique) letter, that's why I'm using numbers in the =c-name= key.
+2. Google saves the sent messages in the All Mail (Archive) folder so it is recommended to set the corresponding mu4e
+   setting to delete sent messages (locally). It's only for Google; for the other account, sent messages are saved in
+   the Sent folder.
+3. The =2-GMX= account is an alias - not another GMX account (see the last comment). It has a different mail, but the SMTP
+   authentication needs the real email address. The outgoing email still looks like it is coming from the alias.
+4. Proton account needs SSL encryption for SMTP, it connects to =localhost= and uses non-standard ports for IMAP and SMTP
+   (check the Proton bridge app for details).
+5. If you have multiple accounts with the same providers, they should have different maildirs, e.g. =~/Mail/Gmail1/=,
+   =~/Mail/Gmail2/=. Here I showed aliases, not multiple accounts.
+   
+** Disclaimer
+:PROPERTIES:
+:CREATED:  [2021-05-09 Sun 22:32]
+:ID:       2AECA758-B861-446B-B73E-C34DDF6EBD3F
+:END:
+
+This setup is based upon a couple of weeks worth of tweaking, trial and error. It's not perfect; some email were lost
+(those not saved into =sent=), lessons were learned. I didn't try it with Microsoft-based emails. Make sure to test
+everything you do - to see that emails are going in and out, saved in =Archive= and =Sent=, compare the results with the
+web-based interface until you get comfortable using it 100% of the time. Or not. 

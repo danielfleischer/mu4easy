@@ -1,0 +1,162 @@
+######################################################################
+IMAPAccount Gmail
+Host imap.gmail.com
+User a@gmail.com
+PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine imap.gmail.com login a@gmail.com/ {print $NF}'"
+AuthMechs LOGIN
+SSLType IMAPS
+SSLVersions TLSv1.2
+CertificateFile /usr/local/etc/openssl@1.1/cert.pem
+
+MaildirStore Gmail-local
+Path ~/Mail/Gmail/
+Inbox ~/Mail/Gmail/Inbox
+SubFolders Verbatim
+
+IMAPStore Gmail-remote
+Account Gmail
+
+Channel Gmail-inbox
+Far :Gmail-remote:"INBOX"
+Near :Gmail-local:"INBOX"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Channel Gmail-trash
+Far :Gmail-remote:"[Gmail]/Trash"
+Near :Gmail-local:"Trash"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Channel Gmail-spam
+Far :Gmail-remote:"[Gmail]/Spam"
+Near :Gmail-local:"Spam"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+    
+Channel Gmail-all
+Far :Gmail-remote:"[Gmail]/All Mail"
+Near :Gmail-local:"Archive"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Channel Gmail-drafts
+Far :Gmail-remote:"[Gmail]/Drafts"
+Near :Gmail-local:"Drafts"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Group Gmail
+Channel Gmail-inbox
+Channel Gmail-trash
+Channel Gmail-all
+Channel Gmail-spam
+Channel Gmail-drafts
+######################################################################
+
+IMAPAccount GMX
+Host imap.gmx.com
+User a@gmx.com
+PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine imap.gmx.com login a@gmx.com/ {print $NF}'"
+AuthMechs LOGIN
+SSLType IMAPS
+SSLVersion TLSv1.2
+CertificateFile /usr/local/etc/openssl@1.1/cert.pem
+
+MaildirStore GMX-local
+Path ~/Mail/GMX/
+Inbox ~/Mail/GMX/Inbox
+SubFolders Verbatim
+
+IMAPStore GMX-remote
+Account GMX
+
+Channel GMX
+Far :GMX-remote:
+Near :GMX-local:
+Patterns "INBOX" "Archive" "Trash" "Spam" "Drafts" "Sent"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+####################################################################
+
+IMAPAccount Proton
+Host 127.0.0.1
+PORT 1111
+User a@protonmail.com
+PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine 127.0.0.1/ {print $NF}'"
+AuthMechs LOGIN
+SSLType STARTTLS
+SSLVersion TLSv1.2
+CertificateFile /usr/local/etc/openssl@1.1/cert.pem
+
+MaildirStore Proton-local
+Path ~/Mail/Proton/
+Inbox ~/Mail/Proton/Inbox
+SubFolders Verbatim
+
+# Define the IMAP4
+IMAPStore Proton-remote
+Account Proton
+
+Channel Proton
+Far :Proton-remote:
+Near :Proton-local:
+Patterns "INBOX" "Archive" "Trash" "Spam" "Drafts" "Sent"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+####################################################################
+
+IMAPAccount Apple
+Host imap.mail.me.com
+PORT 993
+User a@icloud.com
+PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine imap.mail.me.com/ {print $NF}'"
+AuthMechs LOGIN
+SSLType IMAPS
+SSLVersion TLSv1.2
+CertificateFile /usr/local/etc/openssl@1.1/cert.pem
+
+MaildirStore Apple-local
+Path ~/Mail/Apple/
+Inbox ~/Mail/Apple/Inbox
+SubFolders Verbatim
+
+IMAPStore Apple-remote
+Account Apple
+
+Channel Apple-all
+Far :Apple-remote:
+Near :Apple-local:
+Patterns "INBOX" "Archive" "Trash" "Spam" "Drafts"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+    
+Channel Apple-sent
+Far :Apple-remote:"Sent Messages"
+Near :Apple-local:"Sent"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Group Apple
+Channel Apple-sent
+Channel Apple-all
+####################################################################
