@@ -250,11 +250,11 @@ synced to the server and gets deleted according to a policy you control.
                                    (name "Daniel Fleischer")
                                    (sig "Daniel Fleischer"))
   (let
-      ((inbox    (concat "/" maildir "/Inbox"))  
+      ((inbox      (concat "/" maildir "/Inbox"))  
        (sent	   (concat "/" maildir "/Sent"))
-	   (trash	   (concat "/" maildir "/Trash"))
-	   (refile   (concat "/" maildir "/Archive"))
-	   (draft	   (concat "/" maildir "/Drafts")))
+       (trash	   (concat "/" maildir "/Trash"))
+       (refile     (concat "/" maildir "/Archive"))
+       (draft	   (concat "/" maildir "/Drafts")))
     
     `(make-mu4e-context
       :name ,c-name
@@ -279,10 +279,10 @@ synced to the server and gets deleted according to a policy you control.
 	          (smtpmail-smtp-service . ,smtp-port)
 	          (mu4e-maildir-shortcuts . 
                                       ((,inbox   . ?i)
-									   (,sent    . ?s)
-									   (,trash   . ?t)
-									   (,refile  . ?a)
-									   (,draft   . ?d)))))))
+				       (,sent    . ?s)
+				       (,trash   . ?t)
+				       (,refile  . ?a)
+				       (,draft   . ?d)))))))
 #+end_src
 
 That's the macro to create contexts or identities. It's assuming you have a consistent maildirs structure, like
