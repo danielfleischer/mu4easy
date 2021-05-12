@@ -179,7 +179,7 @@
         df/trash-query (mapconcat
                         (lambda (d) (format "m:/%s/Trash" d))
                         df-mail-accounts " OR ")
-        df/unread-query (concat "flag:unseen AND NOT (" df/trash-query ")"))
+        df/unread-query (concat "flag:unread AND NOT (" df/trash-query ")"))
   
 
   (setq mu4e-bookmarks  `(( :name  "Unread"
