@@ -87,7 +87,20 @@
                           (mu4e~proc-move docid
                                           (mu4e~mark-check-target target) "+S-u-N"))))
 
-
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Refile-dwim       depends on provider
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (setq df/refile-dwim
+        '(:char ("r" . "▶")
+          :prompt "refile"
+          :dyn-target (lambda (target msg) (mu4e-get-refile-folder msg))
+          :action (lambda (docid msg target)
+                    (let ((maildir (mu4e-message-field msg :maildir)))
+                      (if (string-match-p "Google\\|Gmail" maildir)
+                          (mu4e~proc-remove docid)
+                        (mu4e~proc-move docid (mu4e~mark-check-target target) "+S-u-N"))))))
+  (setf (alist-get 'refile mu4e-marks) df/refile-dwim)
+        
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Macro for Contexts
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

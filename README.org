@@ -243,6 +243,24 @@ instead flags the message as =seen=, removes the flags =unseen= and =new= and fi
 synced to the server and gets deleted according to a policy you control.
 
 #+begin_src elisp
+(setq df/refile-dwim
+      '(:char ("r" . "▶")
+        :prompt "refile"
+        :dyn-target (lambda (target msg) (mu4e-get-refile-folder msg))
+        :action (lambda (docid msg target)
+                  (let ((maildir (mu4e-message-field msg :maildir)))
+                    (if (string-match-p "Google\\|Gmail" maildir)
+                        (mu4e~proc-remove docid)
+                      (mu4e~proc-move docid (mu4e~mark-check-target target) "+S-u-N"))))))
+(setf (alist-get 'refile mu4e-marks) df/refile-dwim)
+#+end_src
+
+I've added my own =refile-dwim= command. For Google-based accounts (looking at the maildir, adjust the regex for you own
+accounts) it will trash the inbox copy, leaving the other copy in All Mail folder intact, effectively archiving it. For
+other email accounts, it will move the message to the refile maildir, marking it as seen and not new. This way, you can
+just press =r= on a list of messages and they will be archived correctly.
+
+#+begin_src elisp
 (cl-defmacro df/mu4e-context (&key c-name maildir mail smtp
                                    (smtp-mail mail)
                                    (smtp-port 587)
