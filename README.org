@@ -3,12 +3,13 @@
 :CREATED:  [2021-05-09 Sun 22:31]
 :END:
 
-Complete and working mu4e setup using =mbsync=. I'm using Google, Apple, GMX and Proton together with their aliases. I'm
+Complete and working mu4e setup using =mbsync=. I'm using *Google*, *Apple*, *GMX* and *Proton* together with their aliases. I'm
 loading several packages because they're nice but the main contribution is the context-generating macro which lets you add
 and manage accounts with ease.
 
-I call the lisp via a simple ~(load "~/.emacs.d/mail.el")~. Feel free to grab any snippet, or the entire files. *Comments and
-suggestions are welcomed*.
+I call the lisp via a simple ~(load "~/.emacs.d/mail.el")~. Feel free to grab any snippet, or the entire files. 
+
+*Comments and suggestions are welcome*.
 
 ** mbsync
 :PROPERTIES:
