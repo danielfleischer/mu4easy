@@ -53,7 +53,15 @@
 	      org-msg-convert-citation t)
     (org-msg-mode))
 
-
+  (defun df/mail-link-description (msg)
+    (let ((subject (or (plist-get msg :subject)
+                       "No subject"))
+          (date (or (format-time-string mu4e-headers-date-format
+                                        (mu4e-msg-field msg :date))
+                    "No date"))
+          (to-from (mu4e~headers-from-or-to msg)))
+      (message "%s: %s (%s)" to-from subject date)))
+  
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Hooks
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -110,7 +118,7 @@
                                      (smtp-type 'starttls)
                                      (sent-action 'sent)
                                      (name "Daniel Fleischer")
-                                     (sig "Daniel Fleischer"))
+                                     (sig "\n--\nDaniel Fleischer"))
     (let
         ((inbox    (concat "/" maildir "/Inbox"))  
          (sent	   (concat "/" maildir "/Sent"))
@@ -139,6 +147,7 @@
 	        (smtpmail-smtp-server . ,smtp)
                 (smtpmail-stream-type . ,smtp-type)
 	        (smtpmail-smtp-service . ,smtp-port)
+                (org-msg-signature . ,sig)
 	        (mu4e-maildir-shortcuts . 
                                             ((,inbox   . ?i)
 				             (,sent    . ?s)
@@ -159,7 +168,7 @@
         mu4e-completing-read-function 'completing-read
         mu4e-compose-context-policy 'ask
         mu4e-compose-format-flowed t
-        mu4e-compose-signature-auto-include t
+        mu4e-compose-signature-auto-include nil
         mu4e-confirm-quit nil
         mu4e-context-policy 'pick-first
         mu4e-get-mail-command (format "INSIDE_EMACS=%s mbsync -a" emacs-version)
@@ -173,6 +182,7 @@
         mu4e-main-buffer-hide-personal-addresses t
         mu4e-main-buffer-name "*mu4e-main*"
         mu4e-mu-binary "/usr/local/bin/mu"
+        mu4e-org-link-desc-func 'df/mail-link-description
         mu4e-sent-messages-behavior 'sent
         mu4e-update-interval 600
         mu4e-use-fancy-chars nil

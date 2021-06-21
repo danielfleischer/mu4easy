@@ -296,6 +296,7 @@ just press =r= on a list of messages and they will be archived correctly.
 	      (smtpmail-smtp-server . ,smtp)
               (smtpmail-stream-type . ,smtp-type)
 	      (smtpmail-smtp-service . ,smtp-port)
+              (org-msg-signature . ,sig)
 	      (mu4e-maildir-shortcuts . 
                                       ((,inbox   . ?i)
 				       (,sent    . ?s)
@@ -315,6 +316,15 @@ bookmarks, which are very convenient both for jumping and for reading the read/u
 
 *Tip*: the bookmarks query can be either a function or a string. If it's a function, there is no read/unread count. I'm
 using a string generated from a function; if you first eval the string and then set the variable, you do get counts.
+
+For *org-msg* package users, notice that the package itself handles the signature, so you want to define ~org-msg-signature~
+like I did in the macro. It accepts =org= formatting, e.g. ~*Daniel Fleischer*\n/Skynet Inc/~ and then converts it into
+formatted HTML. Also, when using *org-msg*, reply style is /top-posting/ so you need it to handle the signature correctly
+(above the replied text).
+
+Another improvement is creating a customized link description; i.e. calling ~org-store-link~ to save a link to an email,
+it uses ~df/mail-link-description~ which will give a nice description of the form =to/from: subject (ISO timestamp)= - works
+with =org-capture= as well.
 
 Finally, setting up the accounts:
 #+begin_src elisp
