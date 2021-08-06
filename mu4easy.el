@@ -53,15 +53,13 @@
 (use-package org-mime :ensure t)
 
 ;;; Convert to reguler elisp
-(bind-keys :package mu4e
-           ("C-c u" . mu4e)
-           :map mu4e-main-mode-map
-           ("x" . bury-buffer))
-(:map mu4e-headers-mode-map
-      ("M" . mu4e-headers-mark-all)
-      ("N" . mu4e-headers-mark-all-unread-read))
+(global-set-key (kbd "C-c u") 'mu4e)
+(define-key mu4e-main-mode-map (kbd "x") 'bury-buffer)
+(define-key mu4e-headers-mode-map (kbd "M") 'mu4e-headers-mark-all)
+(define-key mu4e-headers-mode-map (kbd "N") 'mu4e-headers-mark-all-unread-read)
 
-(setq mail-user-agent 'mu4e-user-agent)
+
+
 
 (setq
  org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick"
@@ -221,39 +219,41 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Variables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq df-mail-accounts '("Gmail" "GMX" "Proton" "Apple") 
-      message-citation-line-format "On %a, %b %d %Y, %N wrote:"
-      message-citation-line-function 'message-insert-formatted-citation-line
-      message-kill-buffer-on-exit t
-      message-send-mail-function 'smtpmail-send-it
-      mu4e-attachment-dir (expand-file-name "~/Downloads")
-      mu4e-change-filenames-when-moving t
-      mu4e-completing-read-function 'completing-read
-      mu4e-compose-context-policy 'ask
-      mu4e-compose-format-flowed t
-      mu4e-compose-signature-auto-include nil
-      mu4e-confirm-quit nil
-      mu4e-context-policy 'pick-first
-      mu4e-get-mail-command (format "INSIDE_EMACS=%s mbsync -a" emacs-version)
-      mu4e-headers-auto-update t
-      mu4e-headers-date-format "%d/%m/%Y %H:%M"
-      mu4e-headers-include-related nil
-      mu4e-headers-skip-duplicates t
-      mu4e-index-cleanup nil
-      mu4e-index-lazy-check t
-      mu4e-maildir (expand-file-name "~/Mail")       ;; IMPORTANT
-      mu4e-main-buffer-hide-personal-addresses t
-      mu4e-main-buffer-name "*mu4e-main*"
-      mu4e-mu-binary "/usr/local/bin/mu"
-      mu4e-org-link-desc-func 'df/mail-link-description
-      mu4e-sent-messages-behavior 'sent
-      mu4e-update-interval 600
-      mu4e-use-fancy-chars nil
-      mu4e-view-prefer-html t
-      mu4e-view-show-addresses 't
-      mu4e-view-show-images t
-      smtpmail-smtp-service 587
-      starttls-use-gnutls t)
+(setq
+ mail-user-agent 'mu4e-user-agent
+ df-mail-accounts '("Gmail" "GMX" "Proton" "Apple") 
+ message-citation-line-format "On %a, %b %d %Y, %N wrote:"
+ message-citation-line-function 'message-insert-formatted-citation-line
+ message-kill-buffer-on-exit t
+ message-send-mail-function 'smtpmail-send-it
+ mu4e-attachment-dir (expand-file-name "~/Downloads")
+ mu4e-change-filenames-when-moving t
+ mu4e-completing-read-function 'completing-read
+ mu4e-compose-context-policy 'ask
+ mu4e-compose-format-flowed t
+ mu4e-compose-signature-auto-include nil
+ mu4e-confirm-quit nil
+ mu4e-context-policy 'pick-first
+ mu4e-get-mail-command (format "INSIDE_EMACS=%s mbsync -a" emacs-version)
+ mu4e-headers-auto-update t
+ mu4e-headers-date-format "%d/%m/%Y %H:%M"
+ mu4e-headers-include-related nil
+ mu4e-headers-skip-duplicates t
+ mu4e-index-cleanup nil
+ mu4e-index-lazy-check t
+ mu4e-maildir (expand-file-name "~/Mail")       ;; IMPORTANT
+ mu4e-main-buffer-hide-personal-addresses t
+ mu4e-main-buffer-name "*mu4e-main*"
+ mu4e-mu-binary "/usr/local/bin/mu"
+ mu4e-org-link-desc-func 'df/mail-link-description
+ mu4e-sent-messages-behavior 'sent
+ mu4e-update-interval 600
+ mu4e-use-fancy-chars nil
+ mu4e-view-prefer-html t
+ mu4e-view-show-addresses 't
+ mu4e-view-show-images t
+ smtpmail-smtp-service 587
+ starttls-use-gnutls t)
 
 
 
