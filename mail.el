@@ -100,15 +100,15 @@
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   (setq df/refile-dwim
         '(:char ("r" . "▶")
-          :prompt "refile"
-          :dyn-target (lambda (target msg) (mu4e-get-refile-folder msg))
-          :action (lambda (docid msg target)
-                    (let ((maildir (mu4e-message-field msg :maildir)))
-                      (if (string-match-p "Google\\|Gmail" maildir)
-                          (mu4e~proc-remove docid)
-                        (mu4e~proc-move docid (mu4e~mark-check-target target) "+S-u-N"))))))
+                :prompt "refile"
+                :dyn-target (lambda (target msg) (mu4e-get-refile-folder msg))
+                :action (lambda (docid msg target)
+                          (let ((maildir (mu4e-message-field msg :maildir)))
+                            (if (string-match-p "Google\\|Gmail" maildir)
+                                (mu4e~proc-remove docid)
+                              (mu4e~proc-move docid (mu4e~mark-check-target target) "+S-u-N"))))))
   (setf (alist-get 'refile mu4e-marks) df/refile-dwim)
-        
+  
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Macro for Contexts
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -122,9 +122,9 @@
     (let
         ((inbox    (concat "/" maildir "/Inbox"))  
          (sent	   (concat "/" maildir "/Sent"))
-	 (trash	   (concat "/" maildir "/Trash"))
-	 (refile   (concat "/" maildir "/Archive"))
-	 (draft	   (concat "/" maildir "/Drafts")))
+	     (trash	   (concat "/" maildir "/Trash"))
+	     (refile   (concat "/" maildir "/Archive"))
+	     (draft	   (concat "/" maildir "/Drafts")))
       
       `(make-mu4e-context
         :name ,c-name
@@ -133,27 +133,27 @@
                         (string-match-p (concat "^/" ,maildir "/")
                                         (mu4e-message-field msg :maildir))))
         :vars '((user-mail-address . ,mail)
-	        (user-full-name . ,name)
-	        (mu4e-sent-folder . ,sent)
-	        (mu4e-drafts-folder . ,draft)
-	        (mu4e-trash-folder . ,trash)
+	            (user-full-name . ,name)
+	            (mu4e-sent-folder . ,sent)
+	            (mu4e-drafts-folder . ,draft)
+	            (mu4e-trash-folder . ,trash)
                 (mu4e-refile-folder . ,refile)
-	        (mu4e-compose-signature . (concat ,sig))
+	            (mu4e-compose-signature . (concat ,sig))
                 (mu4e-sent-messages-behavior . ,sent-action)
-	        (smtpmail-smtp-user . ,smtp-mail)
-	        (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
+	            (smtpmail-smtp-user . ,smtp-mail)
+	            (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
                 (smtpmail-auth-credentials . '((,smtp ,smtp-port ,smtp-mail nil)))
-	        (smtpmail-default-smtp-server . ,smtp)
-	        (smtpmail-smtp-server . ,smtp)
+	            (smtpmail-default-smtp-server . ,smtp)
+	            (smtpmail-smtp-server . ,smtp)
                 (smtpmail-stream-type . ,smtp-type)
-	        (smtpmail-smtp-service . ,smtp-port)
+	            (smtpmail-smtp-service . ,smtp-port)
                 (org-msg-signature . ,sig)
-	        (mu4e-maildir-shortcuts . 
-                                            ((,inbox   . ?i)
-				             (,sent    . ?s)
-				             (,trash   . ?t)
-				             (,refile  . ?a)
-				             (,draft   . ?d)))))))
+	            (mu4e-maildir-shortcuts . 
+                                        ((,inbox   . ?i)
+				                         (,sent    . ?s)
+				                         (,trash   . ?t)
+				                         (,refile  . ?a)
+				                         (,draft   . ?d)))))))
   
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Variables
@@ -194,40 +194,41 @@
 
         df/inbox-query (mapconcat
                         (lambda (d) (format "m:/%s/Inbox" d))
-                          df-mail-accounts " OR ")
+                        df-mail-accounts " OR ")
         df/today-query (concat "date:today..now AND NOT "
-                          (mapconcat
-                           (lambda (d) (format "m:/%s/Trash" d))
-                           df-mail-accounts " AND NOT "))
+                               (mapconcat
+                                (lambda (d) (format "m:/%s/Trash" d))
+                                df-mail-accounts " AND NOT "))
         df/trash-query (mapconcat
                         (lambda (d) (format "m:/%s/Trash" d))
                         df-mail-accounts " OR ")
         df/unread-query (concat "flag:unread AND NOT (" df/trash-query ")"))
   
 
-  (setq mu4e-bookmarks  `(( :name  "Unread"
-                            :query ,df/unread-query
-                            :key   ?u)
-                          ( :name  "Inbox"
-                            :query ,df/inbox-query
-                            :key   ?i)
-                          ( :name "Today"
-                            :query ,df/today-query
-                            :key   ?t)
-                          ( :name "Flagged"
-                            :query "flag:flagged"
-                            :key   ?f)
-                          ( :name "Tags"
-                            :query "tag://"
-                            :key   ?T)
-                          ( :name "Trash"
-                            :query ,df/trash-query
-                            :key ?x
-                            :hide-unread t)
-                          ( :name "Attachments"
-                            :query "mime:application/pdf or mime:image/jpg or mime:image/png"
-                            :key   ?a
-                            :hide-unread t)))
+  (setq mu4e-bookmarks
+        `(( :name  "Unread"
+            :query ,df/unread-query
+            :key   ?u)
+          ( :name  "Inbox"
+            :query ,df/inbox-query
+            :key   ?i)
+          ( :name "Today"
+            :query ,df/today-query
+            :key   ?t)
+          ( :name "Flagged"
+            :query "flag:flagged"
+            :key   ?f)
+          ( :name "Tags"
+            :query "tag://"
+            :key   ?T)
+          ( :name "Trash"
+            :query ,df/trash-query
+            :key ?x
+            :hide-unread t)
+          ( :name "Attachments"
+            :query "mime:application/pdf or mime:image/jpg or mime:image/png"
+            :key   ?a
+            :hide-unread t)))
 
   (setq mu4e-headers-fields '((:human-date . 18)
                               (:flags      . 6)
@@ -238,53 +239,54 @@
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Mail Identities
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  (setq mu4e-contexts  `(,(df/mu4e-context
-                           :c-name  "Google"
-                           :maildir "Gmail"
-                           :mail    "a@gmail.com"
-                           :smtp    "smtp.gmail.com"
-                           :sent-action delete)
+  (setq mu4e-contexts
+        `(,(df/mu4e-context
+            :c-name  "Google"
+            :maildir "Gmail"
+            :mail    "a@gmail.com"
+            :smtp    "smtp.gmail.com"
+            :sent-action delete)
 
-                         ,(df/mu4e-context
-                           :c-name  "1-GMX"
-                           :maildir "GMX"
-                           :mail    "a@gmx.com"
-                           :smtp    "mail.gmx.com")
+          ,(df/mu4e-context
+            :c-name  "1-GMX"
+            :maildir "GMX"
+            :mail    "a@gmx.com"
+            :smtp    "mail.gmx.com")
 
-                         ,(df/mu4e-context
-                           :c-name    "2-GMX-alias"
-                           :maildir   "GMX"
-                           :mail      "a.alias@gmx.com"
-                           :smtp      "mail.gmx.com"
-                           :smtp-mail "a@gmx.com")
+          ,(df/mu4e-context
+            :c-name    "2-GMX-alias"
+            :maildir   "GMX"
+            :mail      "a.alias@gmx.com"
+            :smtp      "mail.gmx.com"
+            :smtp-mail "a@gmx.com")
 
-                         ,(df/mu4e-context
-                           :c-name  "Apple"
-                           :maildir "Apple"
-                           :mail    "a@icloud.com"
-                           :smtp    "smtp.mail.me.com")
+          ,(df/mu4e-context
+            :c-name  "Apple"
+            :maildir "Apple"
+            :mail    "a@icloud.com"
+            :smtp    "smtp.mail.me.com")
 
-                         ,(df/mu4e-context
-                           :c-name  "3-Apple-alias"
-                           :maildir "Apple"
-                           :mail    "a@me.com"
-                           :smtp    "smtp.mail.me.com"
-                           :smtp-mail "a@icloud.com")
+          ,(df/mu4e-context
+            :c-name  "3-Apple-alias"
+            :maildir "Apple"
+            :mail    "a@me.com"
+            :smtp    "smtp.mail.me.com"
+            :smtp-mail "a@icloud.com")
 
-                         ,(df/mu4e-context
-                           :c-name    "Proton"
-                           :maildir   "Proton"
-                           :mail      "a@protonmail.com"
-                           :smtp      "127.0.0.1"
-                           :smtp-type ssl
-                           :smtp-port 999)
+          ,(df/mu4e-context
+            :c-name    "Proton"
+            :maildir   "Proton"
+            :mail      "a@protonmail.com"
+            :smtp      "127.0.0.1"
+            :smtp-type ssl
+            :smtp-port 999)
 
-                         ,(df/mu4e-context
-                           :c-name    "4-Proton-alias"
-                           :maildir   "Proton"
-                           :mail      "a@pm.com"
-                           :smtp      "127.0.0.1"
-                           :smtp-mail "a@protonmail.com"
-                           :smtp-type ssl
-                           :smtp-port 999))))
+          ,(df/mu4e-context
+            :c-name    "4-Proton-alias"
+            :maildir   "Proton"
+            :mail      "a@pm.com"
+            :smtp      "127.0.0.1"
+            :smtp-mail "a@protonmail.com"
+            :smtp-type ssl
+            :smtp-port 999))))
 

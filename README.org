@@ -282,27 +282,27 @@ just press =r= on a list of messages and they will be archived correctly.
                       (string-match-p (concat "^/" ,maildir "/")
                                       (mu4e-message-field msg :maildir))))
       :vars '((user-mail-address . ,mail)
-	      (user-full-name . ,name)
-	      (mu4e-sent-folder . ,sent)
-	      (mu4e-drafts-folder . ,draft)
-	      (mu4e-trash-folder . ,trash)
+	          (user-full-name . ,name)
+	          (mu4e-sent-folder . ,sent)
+	          (mu4e-drafts-folder . ,draft)
+	          (mu4e-trash-folder . ,trash)
               (mu4e-refile-folder . ,refile)
-	      (mu4e-compose-signature . (concat ,sig))
+	          (mu4e-compose-signature . (concat ,sig))
               (mu4e-sent-messages-behavior . ,sent-action)
-	      (smtpmail-smtp-user . ,smtp-mail)
-	      (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
+	          (smtpmail-smtp-user . ,smtp-mail)
+	          (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
               (smtpmail-auth-credentials . '((,smtp ,smtp-port ,smtp-mail nil)))
-	      (smtpmail-default-smtp-server . ,smtp)
-	      (smtpmail-smtp-server . ,smtp)
+	          (smtpmail-default-smtp-server . ,smtp)
+	          (smtpmail-smtp-server . ,smtp)
               (smtpmail-stream-type . ,smtp-type)
-	      (smtpmail-smtp-service . ,smtp-port)
+	          (smtpmail-smtp-service . ,smtp-port)
               (org-msg-signature . ,sig)
-	      (mu4e-maildir-shortcuts . 
+	          (mu4e-maildir-shortcuts . 
                                       ((,inbox   . ?i)
-				       (,sent    . ?s)
-				       (,trash   . ?t)
-				       (,refile  . ?a)
-				       (,draft   . ?d)))))))
+				                       (,sent    . ?s)
+				                       (,trash   . ?t)
+				                       (,refile  . ?a)
+				                       (,draft   . ?d)))))))
 #+end_src
 
 That's the macro to create contexts or identities. It's assuming you have a consistent maildirs structure, like
@@ -402,4 +402,4 @@ _Important points:_
 This setup is based upon a couple of weeks worth of tweaking, trial and error. It's not perfect; some email were lost
 (those not saved into =sent=), lessons were learned. I didn't try it with Microsoft-based emails. Make sure to test
 everything you do - to see that emails are going in and out, saved in =Archive= and =Sent=, compare the results with the
-web-based interface until you get comfortable using it 100% of the time. Or not. 
+web-based interface until you get comfortable using it 100% of the time. Or not.
