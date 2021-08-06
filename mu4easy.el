@@ -30,6 +30,8 @@
 (require 'smtpmail)
 (require 'org-msg)
 
+(require 'mu4easy-tags)
+
 ;; Optional
 (use-package helm-mu
   :ensure t
@@ -43,12 +45,6 @@
         helm-mu-gnu-sed-program "gsed"))
 
 
-;;;;; Create another file with the code and acknowledgements
-(use-package mu4e-goodies-tags
-  :quelpa (mu4e-goodies-tags :fetcher github
-                             :repo "panjie/mu4e-goodies"
-                             :files ("mu4e-goodies-tags.el")))
-
 ;;; I don't know if we need this; need to test w/ w/o
 (use-package org-mime :ensure t)
 
@@ -59,7 +55,9 @@
 (define-key mu4e-headers-mode-map (kbd "N") 'mu4e-headers-mark-all-unread-read)
 
 
-
+(defgroup mu4easy nil
+  "Settings for mu4easy"
+  :group 'mu4e)
 
 (setq
  org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick"
