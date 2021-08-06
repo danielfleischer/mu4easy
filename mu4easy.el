@@ -28,37 +28,32 @@
 (require 'mu4e)
 (require 'mu4e-contrib)
 (require 'smtpmail)
-(require 'org-msg)
 
 (require 'mu4easy-tags)
-
-;; Optional
-(use-package helm-mu
-  :ensure t
-  :bind
-  (("C-c h h c" . 'helm-mu-contacts)
-   (:map mu4e-main-mode-map ("s" . 'helm-mu))
-   (:map mu4e-headers-mode-map ("s" . 'helm-mu))
-   (:map mu4e-view-mode-map ("s" . 'helm-mu)))
-  :config
-  (setq helm-mu-append-implicit-wildcard t
-        helm-mu-gnu-sed-program "gsed"))
-
-
-;;; I don't know if we need this; need to test w/ w/o
-(use-package org-mime :ensure t)
-
-;;; Convert to reguler elisp
-(global-set-key (kbd "C-c u") 'mu4e)
-(define-key mu4e-main-mode-map (kbd "x") 'bury-buffer)
-(define-key mu4e-headers-mode-map (kbd "M") 'mu4e-headers-mark-all)
-(define-key mu4e-headers-mode-map (kbd "N") 'mu4e-headers-mark-all-unread-read)
 
 
 (defgroup mu4easy nil
   "Settings for mu4easy"
   :group 'mu4e)
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Helm Mu
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'helm-mu)
+
+(global-set-key (kbd "C-c h h c") 'helm-mu-contacts)
+
+(define-key 'mu4e-main-mode-map    (kbd "s") 'helm-mu)
+(define-key 'mu4e-headers-mode-map (kbd "s") 'helm-mu)
+(define-key 'mu4e-view-mode-map    (kbd "s") 'helm-mu)
+
+(setq helm-mu-append-implicit-wildcard t
+      helm-mu-gnu-sed-program "gsed")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Org-Msg
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'org-msg)
 (setq
  org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick"
  org-msg-startup "hidestars indent inlineimages"
@@ -66,6 +61,37 @@
       			                (reply-to-html	. (text html))
       			                (reply-to-text	. (text)))
  org-msg-convert-citation t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+
+;;; I don't know if we need this; need to test w/ w/o
+(use-package org-mime :ensure t)
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Keybindings
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(global-set-key (kbd "C-c u") 'mu4e)
+(define-key mu4e-main-mode-map (kbd "x") 'bury-buffer)
+(define-key mu4e-headers-mode-map (kbd "M") 'mu4e-headers-mark-all)
+(define-key mu4e-headers-mode-map (kbd "N") 'mu4e-headers-mark-all-unread-read)
+
+
+
+
+
+
+
+
+
+
+
+
 
 (defun df/mail-link-description (msg)
   (let ((subject (or (plist-get msg :subject)

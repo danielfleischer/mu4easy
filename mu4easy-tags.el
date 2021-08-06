@@ -91,5 +91,6 @@
 (when (version<= mu4e-mu-version "1.4.15")
   (add-to-list 'mu4e~headers-field-handler-functions 'mu4e-goodies-headers-add-tags-to-subject))
 
+
 (provide 'mu4easy-tags)
 ;;; mu4easy-tags.el ends here
