@@ -6,7 +6,8 @@
   :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
   :bind (("C-c u" . mu4e)
          :map mu4e-main-mode-map
-         ("x" . bury-buffer))
+         ("x" . bury-buffer)
+         ("U" . df/update-mail-and-index))
   :defer 6
   :config
   (setq mail-user-agent 'mu4e-user-agent)
@@ -81,6 +82,24 @@
 
   (when (fboundp 'imagemagick-register-types)
     (imagemagick-register-types))
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Update specific accounts
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (defun df/update-custom-account ()
+    (interactive)
+    (let ((account (completing-read
+                    "Select account: "
+                    (cons "All" df-mail-accounts) nil t nil nil "All"))
+          (command (format "INSIDE_EMACS=%s mbsync " emacs-version)))
+      (pcase account
+        ("All" (concat command "-a"))
+        (else (concat command else)))))
+
+  (defun df/update-mail-and-index ()
+    (interactive)
+    (let ((mu4e-get-mail-command (df/update-custom-account)))
+      (mu4e-update-mail-and-index nil)))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Trash without trashed flag

@@ -326,6 +326,9 @@ Another improvement is creating a customized link description; i.e. calling ~org
 it uses ~df/mail-link-description~ which will give a nice description of the form =to/from: subject (ISO timestamp)= - works
 with =org-capture= as well.
 
+Added is a custom updating function that asks you which account to update, or by default updates all. It is bound to the
+usual "U". 
+
 Finally, setting up the accounts:
 #+begin_src elisp
 (setq mu4e-contexts
