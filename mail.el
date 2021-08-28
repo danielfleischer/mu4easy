@@ -31,6 +31,17 @@
                                :files ("mu4e-goodies-tags.el")))
 
   ;; Optional
+  (use-package mu4e-column-faces
+    :ensure t
+    :config (mu4e-column-faces-mode))
+
+  ;; Optional  
+  (use-package mu4e-alert
+    :ensure t
+    :config
+    (mu4e-alert-enable-notifications)
+    (mu4e-alert-enable-mode-line-display))
+  
   (use-package helm-mu
     :ensure t
     :bind
@@ -39,7 +50,7 @@
      (:map mu4e-headers-mode-map ("s" . 'helm-mu))
      (:map mu4e-view-mode-map ("s" . 'helm-mu)))
     :config
-    (setq helm-mu-append-implicit-wildcard t
+    (setq helm-mu-append-implicit-wildcard nil
           helm-mu-gnu-sed-program "gsed"))
 
   ;; Optional
@@ -61,8 +72,8 @@
                                         (mu4e-msg-field msg :date))
                     "No date"))
           (to-from (mu4e~headers-from-or-to msg)))
-      (message "%s: %s (%s)" to-from subject date)))
-  
+      (format "%s: %s (%s)" to-from subject date)))
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Hooks
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -77,8 +88,18 @@
               (paragraph-indent-minor-mode)
               (electric-indent-local-mode -1)
               (turn-on-flyspell)))
+  (add-hook 'org-msg-edit-mode-hook 
+            (lambda ()
+              (set-fill-column 100)
+              (turn-on-auto-fill)
+              (electric-indent-local-mode -1)
+              (turn-on-flyspell)))
   (add-to-list 'mu4e-view-actions
-               '("View In Browser" . mu4e-action-view-in-browser) t)
+               '("Apply Email" . mu4e-action-git-apply-mbox) t)
+  (add-hook 'mu4e-context-changed-hook
+            (lambda ()
+              (when (derived-mode-p 'mu4e-main-mode)
+                (revert-buffer))))
 
   (when (fboundp 'imagemagick-register-types)
     (imagemagick-register-types))
@@ -195,34 +216,27 @@
         mu4e-headers-date-format "%d/%m/%Y %H:%M"
         mu4e-headers-include-related nil
         mu4e-headers-skip-duplicates t
-        mu4e-index-cleanup nil
-        mu4e-index-lazy-check t
-        mu4e-maildir (expand-file-name "~/Mail")       ;; IMPORTANT
+        mu4e-index-cleanup t
+        mu4e-index-lazy-check nil
+        mu4e-maildir (expand-file-name "~/Mail")
         mu4e-main-buffer-hide-personal-addresses t
         mu4e-main-buffer-name "*mu4e-main*"
         mu4e-mu-binary "/usr/local/bin/mu"
         mu4e-org-link-desc-func 'df/mail-link-description
         mu4e-sent-messages-behavior 'sent
         mu4e-update-interval 600
-        mu4e-use-fancy-chars nil
+        mu4e-use-fancy-chars t
         mu4e-view-prefer-html t
         mu4e-view-show-addresses 't
         mu4e-view-show-images t
         smtpmail-smtp-service 587
         starttls-use-gnutls t
 
-        df/inbox-query (mapconcat
-                        (lambda (d) (format "m:/%s/Inbox" d))
-                        df-mail-accounts " OR ")
-        df/today-query (concat "date:today..now AND NOT "
-                               (mapconcat
-                                (lambda (d) (format "m:/%s/Trash" d))
-                                df-mail-accounts " AND NOT "))
-        df/trash-query (mapconcat
-                        (lambda (d) (format "m:/%s/Trash" d))
-                        df-mail-accounts " OR ")
-        df/unread-query (concat "flag:unread AND NOT (" df/trash-query ")"))
-  
+        df/inbox-query "maildir:/Inbox/" 
+        df/today-query "date:today..now AND NOT maildir:/Trash/ AND NOT maildir:/Spam/"
+        df/trash-query "maildir:/Trash/"
+        df/unread-query "flag:new AND NOT maildir:/Trash/ AND NOT maildir:/Spam/")
+
 
   (setq mu4e-bookmarks
         `(( :name  "Unread"
