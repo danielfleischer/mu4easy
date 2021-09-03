@@ -119,7 +119,9 @@
 
   (defun df/update-mail-and-index ()
     (interactive)
-    (let ((mu4e-get-mail-command (df/update-custom-account)))
+    (if current-prefix-arg
+        (let ((mu4e-get-mail-command (df/update-custom-account)))
+          (mu4e-update-mail-and-index nil))
       (mu4e-update-mail-and-index nil)))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

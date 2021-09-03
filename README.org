@@ -17,7 +17,10 @@ I call the lisp via a simple ~(load "~/.emacs.d/mail.el")~. Feel free to grab an
 :END:
 
 The important part is to normalize all accounts to have the same structure, containing the folders Inbox, Archive, Sent,
-Trash, Drafts and Spam. Let's go over each provider and examine the gotchas.
+Trash, Drafts and Spam. I would advice against syncing the Drafts folder because it can lead to issues. If you decide
+not to sync it, just remove the relevant lines from the =.mbsyncrc= file.
+
+Let's go over each provider and examine the gotchas.
 
 *** Google
 :PROPERTIES:
