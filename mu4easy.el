@@ -37,34 +37,6 @@
   :group 'mu4e)
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Helm Mu
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'helm-mu)
-
-(global-set-key (kbd "C-c h h c") 'helm-mu-contacts)
-
-(define-key 'mu4e-main-mode-map    (kbd "s") 'helm-mu)
-(define-key 'mu4e-headers-mode-map (kbd "s") 'helm-mu)
-(define-key 'mu4e-view-mode-map    (kbd "s") 'helm-mu)
-
-(setq helm-mu-append-implicit-wildcard t
-      helm-mu-gnu-sed-program "gsed")
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Org-Msg
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'org-msg)
-(setq
- org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick"
- org-msg-startup "hidestars indent inlineimages"
- org-msg-default-alternatives '((new	    	. (text html))
-      			                (reply-to-html	. (text html))
-      			                (reply-to-text	. (text)))
- org-msg-convert-citation t)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
 
 
 ;;; I don't know if we need this; need to test w/ w/o
