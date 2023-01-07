@@ -38,19 +38,19 @@
 (defcustom mu4easy-greeting "Hi%s,\n\n"
   "Email greeting where %s is the first name of 1-2 recipients.
 See also `org-msg-greeting-fmt'."
-  :type 'string)
+  :type '(string))
 
 (defcustom mu4easy-signature "\n\n*Daniel Fleischer*"
   "Signature; supports org syntax thanks to org-msg."
-  :type 'string)
+  :type '(string))
 
 (defcustom mu4easy-maildir "~/Documents/Mail"
   "Location of maildirs; see mbsync configuration."
-  :type 'directory)
+  :type '(directory))
 
 (defcustom mu4easy-download-dir "~/Downloads"
   "Location of downloads dir."
-  :type 'directory)
+  :type '(directory))
 
 (setq mail-user-agent 'mu4e-user-agent)
 
@@ -107,7 +107,7 @@ See also `org-msg-greeting-fmt'."
 
 (use-package org-msg
   :ensure t
-  :config 
+  :config
   (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick"
         org-msg-startup "hidestars indent inlineimages"
         org-msg-default-alternatives '((new           . (text html))
@@ -121,6 +121,8 @@ See also `org-msg-greeting-fmt'."
   (org-msg-mode))
 
 (defun df/link-description (msg)
+  "Creating a link description to be used with `org-store-link'.
+Argument MSG msg at point."
   (let ((subject (or (plist-get msg :subject)
                      "No subject"))
         (date (or (format-time-string mu4e-headers-date-format
@@ -169,6 +171,7 @@ See also `org-msg-greeting-fmt'."
 ;; Update specific accounts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun df/update-custom-account ()
+  "Run mbsync update for a specific account."
   (interactive)
   (let ((account (completing-read
                   "Select account: "
@@ -179,6 +182,7 @@ See also `org-msg-greeting-fmt'."
       (else (concat command else)))))
 
 (defun df/update-mail-and-index ()
+  "Run a mu4e update; if prefix, focus on a specific account."
   (interactive)
   (mu4e-kill-update-mail)
   (if current-prefix-arg
@@ -243,7 +247,7 @@ See also `org-msg-greeting-fmt'."
                                    (name user-full-name)
                                    (sig mu4easy-signature))
   (let
-      ((inbox  (concat "/" maildir "/Inbox"))  
+      ((inbox  (concat "/" maildir "/Inbox"))
        (sent   (concat "/" maildir "/Sent"))
        (trash  (concat "/" maildir "/Trash"))
        (refile (concat "/" maildir "/Archive"))
@@ -275,7 +279,7 @@ See also `org-msg-greeting-fmt'."
               (smtpmail-debug-info . t)
               (smtpmail-debug-verbose . t)
               (org-msg-signature . ,sig)
-              (mu4e-maildir-shortcuts . 
+              (mu4e-maildir-shortcuts .
                                       ((,inbox   . ?i)
                                        (,sent    . ?s)
                                        (,trash   . ?t)
@@ -322,7 +326,7 @@ See also `org-msg-greeting-fmt'."
 "
       df/today-query "date:today..now AND NOT maildir:/Trash/ AND NOT maildir:/Spam/"
       df/trash-query "maildir:/Trash/"
-      df/inbox-query "maildir:/Inbox/" 
+      df/inbox-query "maildir:/Inbox/"
       df/unread-query "flag:new AND maildir:/Inbox/")
 
 (setq mu4e-bookmarks
