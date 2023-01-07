@@ -6,7 +6,7 @@
 ;; Keywords: mail
 ;; Homepage: https://github.com/danielfleischer/mu4easy
 ;; Package-Version: 1.0
-;; Package-Requires: ((quelpa "1.0") (use-package "2"))
+;; Package-Requires: ((emacs "25.1") (quelpa "1.0") (use-package "2"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -20,6 +20,15 @@
 
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; This package contains a collection of packages and configurations
+;; making it easy and fun to use email with Emacs using mu, mu4e, mbsync
+;; and other improvements. The setup supports multiple email providers
+;; such as Google, Apple, GMX and Proton. In addition to this elisp
+;; package, there is an mbsync configuration that needs to be changed
+;; and copied manually.
 
 ;;; Code:
 (require 'use-package)
