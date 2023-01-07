@@ -1,6 +1,7 @@
-* mu4e Config
+* mu4easy
 :PROPERTIES:
 :CREATED:  [2021-05-09 Sun 22:31]
+:ID:       2021-05-09-22-31-33-d9a
 :END:
 
 Complete and working mu4e setup using =mbsync= and mu1.9+. I'm using *Google*, *Apple*, *GMX* and *Proton* together with their
@@ -15,6 +16,13 @@ Install locally using the =load-path= variable, e.g.
 #+end_src
 
 *Comments and suggestions are welcome*.
+
+- mbsync
+   - [[#Google][Google]]
+   - [[#Apple][Apple]]
+   - [[#GMX][GMX]]
+   - [[#Proton][Proton]]
+- [[#mu4e][mu4e configuration]]
 
 ** mbsync
 :PROPERTIES:

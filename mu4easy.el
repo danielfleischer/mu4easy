@@ -1,4 +1,4 @@
-;;; mu4easy.el --- Mu4e configuration + friends   -*- lexical-binding: t; -*-
+;;; mu4easy.el --- Opinionated collection of packages and configuration for using mu4e with multiple accounts    -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2023  Daniel Fleischer
 
