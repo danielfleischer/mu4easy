@@ -1,9 +1,12 @@
-;;; mail.el --- mu4e configuration + friends   -*- lexical-binding: t; -*-
+;;; mu4easy.el --- mu4e configuration + friends   -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2023  Daniel Fleischer
 
 ;; Author: Daniel Fleischer;;  <danflscr@gmail.com>
 ;; Keywords: mail
+;; Homepage: https://github.com/danielfleischer/mu4easy
+;; Package-Version: 1.0
+;; Package-Requires: ((quelpa "1.0") (use-package "2"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -18,11 +21,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-;;; Commentary:
-
-;; Many dependencies.
-
 ;;; Code:
+(require 'use-package)
+(require 'quelpa)
+(use-package quelpa-use-package
+  :ensure t)
+
 (setq mail-user-agent 'mu4e-user-agent)
 
 (use-package mu4e
@@ -386,5 +390,5 @@
           :smtp-type ssl
           :smtp-port 999)))
 
-(provide 'mail)
-;;; mail.el ends here
+(provide 'mu4easy)
+;;; mu4easy.el ends here

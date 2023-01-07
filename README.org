@@ -3,11 +3,16 @@
 :CREATED:  [2021-05-09 Sun 22:31]
 :END:
 
-Complete and working mu4e setup using =mbsync=. I'm using *Google*, *Apple*, *GMX* and *Proton* together with their aliases. I'm
-loading several packages because they're nice but the main contribution is the context-generating macro which lets you add
-and manage accounts with ease.
+Complete and working mu4e setup using =mbsync= and mu1.9+. I'm using *Google*, *Apple*, *GMX* and *Proton* together with their
+aliases. I'm loading several packages because they're nice but the main contribution is the context-generating macro
+which lets you add and manage accounts with ease.
 
-I call the lisp via a simple ~(load "~/.emacs.d/mail.el")~. Feel free to grab any snippet, or the entire files. 
+Install locally using the =load-path= variable, e.g.
+#+begin_src elisp
+(use-package mail
+  :load-path "~/Code/mu4easy"
+  :bind ("C-c u" . mu4e))
+#+end_src
 
 *Comments and suggestions are welcome*.
 
@@ -244,24 +249,6 @@ and load them lazily. You can adapt it to your way of managing packages. Some no
 I picked this code and realized that, at least for Google, if you flag a message =trashed=, it just disappears. This code
 instead flags the message as =seen=, removes the flags =unseen= and =new= and finally, moves it to the Trash folder, which is
 synced to the server and gets deleted according to a policy you control.
-
-#+begin_src elisp
-(setq df/refile-dwim
-      '(:char ("r" . "▶")
-        :prompt "refile"
-        :dyn-target (lambda (target msg) (mu4e-get-refile-folder msg))
-        :action (lambda (docid msg target)
-                  (let ((maildir (mu4e-message-field msg :maildir)))
-                    (if (string-match-p "Google\\|Gmail" maildir)
-                        (mu4e~proc-remove docid)
-                      (mu4e~proc-move docid (mu4e~mark-check-target target) "+S-u-N"))))))
-(setf (alist-get 'refile mu4e-marks) df/refile-dwim)
-#+end_src
-
-I've added my own =refile-dwim= command. For Google-based accounts (looking at the maildir, adjust the regex for you own
-accounts) it will trash the inbox copy, leaving the other copy in All Mail folder intact, effectively archiving it. For
-other email accounts, it will move the message to the refile maildir, marking it as seen and not new. This way, you can
-just press =r= on a list of messages and they will be archived correctly.
 
 #+begin_src elisp
 (cl-defmacro df/mu4e-context (&key c-name maildir mail smtp
