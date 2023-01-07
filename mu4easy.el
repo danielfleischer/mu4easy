@@ -53,7 +53,7 @@ See also `org-msg-greeting-fmt'."
   "Signature; supports org syntax thanks to org-msg."
   :type '(string))
 
-(defcustom mu4easy-maildir "~/Documents/Mail"
+(defcustom mu4easy-maildir "~/Mail"
   "Location of maildirs; see mbsync configuration."
   :type '(directory))
 
@@ -261,6 +261,8 @@ Optional argument ARGS ."
                                    (name user-full-name)
                                    (sig mu4easy-signature))
   "Main macro for creating email accounts (contexts).
+See examples in the README file. 
+
 C-NAME context name, used in mu4e UI; first letter is going to be
     used as a shortcut.
 MAILDIR mail dir under path/Mail/...
@@ -356,30 +358,36 @@ SIG signature string; supports org formatting thanks to org-msg."
       mu4easy-inbox-query "maildir:/Inbox/"
       mu4easy-unread-query "flag:new AND maildir:/Inbox/")
 
-(setq mu4e-bookmarks
-      `(( :name  "Unread"
-          :query ,mu4easy-unread-query
-          :key   ?u)
-        ( :name  "Inbox"
-          :query ,mu4easy-inbox-query
-          :key   ?i)
-        ( :name "Today"
-          :query ,mu4easy-today-query
-          :key   ?t)
-        ( :name "Flagged"
-          :query "flag:flagged"
-          :key   ?f)
-        ( :name "Tags"
-          :query "tag://"
-          :key   ?T)
-        ( :name "Trash"
-          :query ,mu4easy-trash-query
-          :key ?x
-          :hide-unread t)
-        ( :name "Attachments"
-          :query "mime:application/pdf or mime:image/jpg or mime:image/png"
-          :key   ?a
-          :hide-unread t)))
+(defcustom mu4easy-bookmarks
+  `(( :name  "Unread"
+      :query ,mu4easy-unread-query
+      :key   ?u)
+    ( :name  "Inbox"
+      :query ,mu4easy-inbox-query
+      :key   ?i)
+    ( :name "Today"
+      :query ,mu4easy-today-query
+      :key   ?t)
+    ( :name "Flagged"
+      :query "flag:flagged"
+      :key   ?f)
+    ( :name "Tags"
+      :query "tag://"
+      :key   ?T)
+    ( :name "Trash"
+      :query ,mu4easy-trash-query
+      :key ?x
+      :hide-unread t)
+    ( :name "Attachments"
+      :query "mime:application/pdf or mime:image/jpg or mime:image/png"
+      :key   ?a
+      :hide-unread t))
+  "Preconfigured bookmarks for easy navigation.
+
+See `mu4e-bookmarks'."
+  :type '(repeat (plist)))
+
+(setq mu4e-bookmarks mu4easy-bookmarks)
 
 (setq mu4e-headers-fields
       '((:human-date   . 18)
@@ -393,56 +401,67 @@ SIG signature string; supports org formatting thanks to org-msg."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Mail Identities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq mu4e-contexts
-      `(,(mu4easy-context
+(defcustom mu4easy-contexts
+      `((mu4easy-context
           :c-name  "Google"
           :maildir "Gmail"
           :mail    "a@gmail.com"
           :smtp    "smtp.gmail.com"
           :sent-action delete)
 
-        ,(mu4easy-context
+        (mu4easy-context
           :c-name  "1-GMX"
           :maildir "GMX"
           :mail    "a@gmx.com"
           :smtp    "mail.gmx.com")
 
-        ,(mu4easy-context
-          :c-name    "2-GMX-alias"
-          :maildir   "GMX"
-          :mail      "a.alias@gmx.com"
-          :smtp      "mail.gmx.com"
-          :smtp-mail "a@gmx.com")
+        (mu4easy-context
+         :c-name    "2-GMX-alias"
+         :maildir   "GMX"
+         :mail      "a.alias@gmx.com"
+         :smtp      "mail.gmx.com"
+         :smtp-mail "a@gmx.com")
 
-        ,(mu4easy-context
-          :c-name  "Apple"
-          :maildir "Apple"
-          :mail    "a@icloud.com"
-          :smtp    "smtp.mail.me.com")
+        (mu4easy-context
+         :c-name  "Apple"
+         :maildir "Apple"
+         :mail    "a@icloud.com"
+         :smtp    "smtp.mail.me.com")
 
-        ,(mu4easy-context
-          :c-name  "3-Apple-alias"
-          :maildir "Apple"
-          :mail    "a@me.com"
-          :smtp    "smtp.mail.me.com"
-          :smtp-mail "a@icloud.com")
+        (mu4easy-context
+         :c-name  "3-Apple-alias"
+         :maildir "Apple"
+         :mail    "a@me.com"
+         :smtp    "smtp.mail.me.com"
+         :smtp-mail "a@icloud.com")
 
-        ,(mu4easy-context
-          :c-name    "Proton"
-          :maildir   "Proton"
-          :mail      "a@protonmail.com"
-          :smtp      "127.0.0.1"
-          :smtp-type ssl
-          :smtp-port 999)
+        (mu4easy-context
+         :c-name    "Proton"
+         :maildir   "Proton"
+         :mail      "a@protonmail.com"
+         :smtp      "127.0.0.1"
+         :smtp-type ssl
+         :smtp-port 999)
 
-        ,(mu4easy-context
-          :c-name    "4-Proton-alias"
-          :maildir   "Proton"
-          :mail      "a@pm.com"
-          :smtp      "127.0.0.1"
-          :smtp-mail "a@protonmail.com"
-          :smtp-type ssl
-          :smtp-port 999)))
+        (mu4easy-context
+         :c-name    "4-Proton-alias"
+         :maildir   "Proton"
+         :mail      "a@pm.com"
+         :smtp      "127.0.0.1"
+         :smtp-mail "a@protonmail.com"
+         :smtp-type ssl
+         :smtp-port 999))
+      
+      "Defining accounts and aliases.
+
+After changing it, update `mu4e-contexts' using
+    (setq mu4e-contexts (mapcar #'eval mu4easy-contexts))
+
+See `mu4easy-context' for function signature."
+      
+      :type '(repeat sexp))
+
+(setq mu4e-contexts (mapcar #'eval mu4easy-contexts))
 
 (provide 'mu4easy)
 ;;; mu4easy.el ends here
