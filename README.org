@@ -9,7 +9,7 @@ which lets you add and manage accounts with ease.
 
 Install locally using the =load-path= variable, e.g.
 #+begin_src elisp
-(use-package mail
+(use-package mu4easy
   :load-path "~/Code/mu4easy"
   :bind ("C-c u" . mu4e))
 #+end_src
