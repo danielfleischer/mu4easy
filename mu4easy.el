@@ -27,6 +27,31 @@
 (use-package quelpa-use-package
   :ensure t)
 
+(defgroup mu4easy nil
+  "Easy configuration for mu4e."
+  :group 'mail)
+
+(defcustom mu4easy-account '("Gmail" "GMX" "Apple" "Proton")
+  "List of email accounts names, as defined on disk."
+  :type '(repeat string))
+
+(defcustom mu4easy-greeting "Hi%s,\n\n"
+  "Email greeting where %s is the first name of 1-2 recipients.
+See also `org-msg-greeting-fmt'."
+  :type 'string)
+
+(defcustom mu4easy-signature "\n\n*Daniel Fleischer*"
+  "Signature; supports org syntax thanks to org-msg."
+  :type 'string)
+
+(defcustom mu4easy-maildir "~/Documents/Mail"
+  "Location of maildirs; see mbsync configuration."
+  :type 'directory)
+
+(defcustom mu4easy-download-dir "~/Downloads"
+  "Location of downloads dir."
+  :type 'directory)
+
 (setq mail-user-agent 'mu4e-user-agent)
 
 (use-package mu4e
@@ -88,8 +113,8 @@
         org-msg-default-alternatives '((new           . (text html))
                                        (reply-to-html . (text html))
                                        (reply-to-text . (text)))
-        org-msg-signature "\n\n*Daniel Fleischer*"
-        org-msg-greeting-fmt "Hi%s,\n\n"
+        org-msg-signature mu4easy-signature
+        org-msg-greeting-fmt mu4easy-greeting
         org-msg-posting-style 'top-posting
         org-msg-greeting-name-limit 2
         org-msg-convert-citation t)
@@ -183,8 +208,6 @@
               :action (lambda (docid msg target)
                         (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Respond in text-mode if prefix
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -217,8 +240,8 @@
                                    (smtp-port 587)
                                    (smtp-type 'starttls)
                                    (sent-action 'sent)
-                                   (name "Daniel Fleischer")
-                                   (sig "\n\n*Daniel Fleischer*"))
+                                   (name user-full-name)
+                                   (sig mu4easy-signature))
   (let
       ((inbox  (concat "/" maildir "/Inbox"))  
        (sent   (concat "/" maildir "/Sent"))
@@ -263,11 +286,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Variables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq df/mail-accounts '("Gmail" "GMX" "Apple" "Proton")
+(setq df/mail-accounts mu4easy-account
       message-citation-line-function 'message-insert-formatted-citation-line
       message-kill-buffer-on-exit t
       message-send-mail-function 'smtpmail-send-it
-      mu4e-attachment-dir (expand-file-name "~/Downloads")
+      mu4e-attachment-dir (expand-file-name mu4easy-download-dir)
       mu4e-change-filenames-when-moving t
       mu4e-completing-read-function 'completing-read
       mu4e-compose-context-policy 'ask
@@ -282,7 +305,7 @@
       mu4e-headers-skip-duplicates t
       mu4e-index-cleanup t
       mu4e-index-lazy-check nil
-      mu4e-maildir (expand-file-name "~/Documents/Mail")
+      mu4e-maildir (expand-file-name mu4easy-maildir)
       mu4e-main-buffer-hide-personal-addresses t
       mu4e-main-buffer-name "*mu4e-main*"
       mu4e-mu-binary "/usr/local/bin/mu"
