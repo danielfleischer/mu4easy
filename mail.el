@@ -1,326 +1,390 @@
-;; -*- lexical-binding: t; -*-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Packages
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; mail.el --- mu4e configuration + friends   -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2023  Daniel Fleischer
+
+;; Author: Daniel Fleischer;;  <danflscr@gmail.com>
+;; Keywords: mail
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Many dependencies.
+
+;;; Code:
+(setq mail-user-agent 'mu4e-user-agent)
+
 (use-package mu4e
   :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
   :bind (("C-c u" . mu4e)
          :map mu4e-main-mode-map
          ("x" . bury-buffer)
-         ("U" . df/update-mail-and-index))
-  :defer 6
+         ("I" . mu4e-update-index)
+         ("U" . df/update-mail-and-index)))
+
+
+(use-package smtpmail)
+
+(use-package mu4e-icalendar
   :config
-  (setq mail-user-agent 'mu4e-user-agent)
+  (setq mu4e-icalendar-trash-after-reply nil
+        mu4e-icalendar-diary-file diary-file)
+  (mu4e-icalendar-setup))
 
-  (use-package smtpmail)
+(use-package mu4e-contrib
+  :defer 2
+  :bind (:map mu4e-headers-mode-map
+              ("M" . mu4e-headers-mark-all)
+              ("N" . mu4e-headers-mark-all-unread-read)))
 
-  ;; Optional
-  (use-package org-mime :ensure t)
+(use-package mu4e-goodies-tags
+  :quelpa (mu4e-goodies-tags :fetcher github
+                             :repo "panjie/mu4e-goodies"
+                             :files ("mu4e-goodies-tags.el"
+                                     "mu4e-goodies-utils.el")))
 
-  ;; Optional
-  (use-package mu4e-contrib
-    :defer 2
-    :bind (:map mu4e-headers-mode-map
-                ("M" . mu4e-headers-mark-all)
-                ("N" . mu4e-headers-mark-all-unread-read)))
+(use-package mu4e-column-faces
+  :ensure t
+  :config (mu4e-column-faces-mode))
 
-  ;; Optional
-  (use-package mu4e-goodies-tags
-    :quelpa (mu4e-goodies-tags :fetcher github
-                               :repo "panjie/mu4e-goodies"
-                               :files ("mu4e-goodies-tags.el")))
+(use-package mu4e-alert
+  :quelpa (mu4e-alert :fetcher github
+                      :repo "xzz53/mu4e-alert")
+  :config
+  (mu4e-alert-enable-notifications)
+  (mu4e-alert-enable-mode-line-display))
 
-  ;; Optional
-  (use-package mu4e-column-faces
-    :ensure t
-    :config (mu4e-column-faces-mode))
+(use-package helm-mu
+  :quelpa (helm-mu :fetcher github
+                   :repo "danielfleischer/helm-mu")
+  :bind
+  (("C-c h h c" . 'helm-mu-contacts)
+   (:map mu4e-search-minor-mode-map
+         ("s" . helm-mu)))
+  :config
+  (setq helm-mu-append-implicit-wildcard nil
+        helm-mu-gnu-sed-program "gsed"))
 
-  ;; Optional  
-  (use-package mu4e-alert
-    :ensure t
-    :config
-    (mu4e-alert-enable-notifications)
-    (mu4e-alert-enable-mode-line-display))
-  
-  (use-package helm-mu
-    :ensure t
-    :bind
-    (("C-c h h c" . 'helm-mu-contacts)
-     (:map mu4e-main-mode-map ("s" . 'helm-mu))
-     (:map mu4e-headers-mode-map ("s" . 'helm-mu))
-     (:map mu4e-view-mode-map ("s" . 'helm-mu)))
-    :config
-    (setq helm-mu-append-implicit-wildcard nil
-          helm-mu-gnu-sed-program "gsed"))
+(use-package org-msg
+  :ensure t
+  :config 
+  (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick"
+        org-msg-startup "hidestars indent inlineimages"
+        org-msg-default-alternatives '((new           . (text html))
+                                       (reply-to-html . (text html))
+                                       (reply-to-text . (text)))
+        org-msg-signature "\n\n*Daniel Fleischer*"
+        org-msg-greeting-fmt "Hi%s,\n\n"
+        org-msg-posting-style 'top-posting
+        org-msg-greeting-name-limit 2
+        org-msg-convert-citation t)
+  (org-msg-mode))
 
-  ;; Optional
-  (use-package org-msg
-    :ensure t
-    :config 
-    (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick"
-          org-msg-startup "hidestars indent inlineimages"
-          org-msg-default-alternatives '((new           . (text html))
-                                         (reply-to-html . (text html))
-                                         (reply-to-text . (text)))
-          org-msg-convert-citation t)
-    (org-msg-mode))
+(defun df/link-description (msg)
+  (let ((subject (or (plist-get msg :subject)
+                     "No subject"))
+        (date (or (format-time-string mu4e-headers-date-format
+                                      (mu4e-msg-field msg :date))
+                  "No date"))
+        (to-from (mu4e~headers-from-or-to msg)))
+    (format "%s: %s (%s)" to-from subject date)))
 
-  (defun df/mail-link-description (msg)
-    (let ((subject (or (plist-get msg :subject)
-                       "No subject"))
-          (date (or (format-time-string mu4e-headers-date-format
-                                        (mu4e-msg-field msg :date))
-                    "No date"))
-          (to-from (mu4e~headers-from-or-to msg)))
-      (format "%s: %s (%s)" to-from subject date)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Hooks
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(add-hook 'mu4e-view-mode-hook
+          (lambda ()
+            (local-set-key (kbd "<tab>") 'shr-next-link)
+            (local-set-key (kbd "<backtab>") 'shr-previous-link)))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Hooks
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  (add-hook 'mu4e-view-mode-hook
-            (lambda ()
-              (local-set-key (kbd "<tab>") 'shr-next-link)
-              (local-set-key (kbd "<backtab>") 'shr-previous-link)))
-  (add-hook 'mu4e-compose-mode-hook
-            (lambda ()
-              (set-fill-column 100)
-              (turn-on-auto-fill)
-              (paragraph-indent-minor-mode)
-              (electric-indent-local-mode -1)
-              (turn-on-flyspell)))
-  (add-hook 'org-msg-edit-mode-hook 
-            (lambda ()
-              (set-fill-column 100)
-              (turn-on-auto-fill)
-              (electric-indent-local-mode -1)
-              (turn-on-flyspell)))
-  (add-to-list 'mu4e-view-actions
-               '("Apply Email" . mu4e-action-git-apply-mbox) t)
-  (add-hook 'mu4e-context-changed-hook
-            (lambda ()
-              (when (derived-mode-p 'mu4e-main-mode)
-                (revert-buffer))))
+(add-hook 'org-msg-edit-mode-hook
+          (lambda ()
+            (set-fill-column 120)
+            (turn-on-auto-fill)
+            (electric-indent-local-mode -1)
+            (turn-on-flyspell )))
 
-  (when (fboundp 'imagemagick-register-types)
-    (imagemagick-register-types))
+(add-hook 'mu4e-compose-mode-hook
+          (lambda ()
+            (set-fill-column 120)
+            (turn-on-auto-fill)
+            (electric-indent-local-mode -1)
+            (turn-on-flyspell)))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Update specific accounts
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  (defun df/update-custom-account ()
-    (interactive)
-    (let ((account (completing-read
-                    "Select account: "
-                    (cons "All" df-mail-accounts) nil t nil nil "All"))
-          (command (format "INSIDE_EMACS=%s mbsync " emacs-version)))
-      (pcase account
-        ("All" (concat command "-a"))
-        (else (concat command else)))))
+(add-hook 'mu4e-main-mode-hook
+          (lambda () (text-scale-decrease 1)))
 
-  (defun df/update-mail-and-index ()
-    (interactive)
-    (if current-prefix-arg
-        (let ((mu4e-get-mail-command (df/update-custom-account)))
-          (mu4e-update-mail-and-index nil))
-      (mu4e-update-mail-and-index nil)))
+(add-to-list 'mu4e-view-actions
+             '("Apply Email" . mu4e-action-git-apply-mbox) t)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Trash without trashed flag
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  (setf (alist-get 'trash mu4e-marks)
-        '(:char ("d" . "▼")
-                :prompt "dtrash"
-                :dyn-target (lambda (target msg) (mu4e-get-trash-folder msg))
-                ;; Here's the main difference to the regular trash mark, no +T
-                ;; before -N so the message is not marked as IMAP-deleted:
-                :action (lambda (docid msg target)
-                          (mu4e~proc-move docid
-                                          (mu4e~mark-check-target target) "+S-u-N"))))
+(add-hook 'mu4e-context-changed-hook
+          (lambda ()
+            (when (derived-mode-p 'mu4e-main-mode)
+              (revert-buffer))))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Refile-dwim       depends on provider
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  (setq df/refile-dwim
-        '(:char ("r" . "▶")
-                :prompt "refile"
-                :dyn-target (lambda (target msg) (mu4e-get-refile-folder msg))
-                :action (lambda (docid msg target)
-                          (let ((maildir (mu4e-message-field msg :maildir)))
-                            (if (string-match-p "Google\\|Gmail" maildir)
-                                (mu4e~proc-remove docid)
-                              (mu4e~proc-move docid (mu4e~mark-check-target target) "+S-u-N"))))))
-  (setf (alist-get 'refile mu4e-marks) df/refile-dwim)
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Macro for Contexts
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  (cl-defmacro df/mu4e-context (&key c-name maildir mail smtp
-                                     (smtp-mail mail)
-                                     (smtp-port 587)
-                                     (smtp-type 'starttls)
-                                     (sent-action 'sent)
-                                     (name "Daniel Fleischer")
-                                     (sig "\n--\nDaniel Fleischer"))
-    (let
-        ((inbox    (concat "/" maildir "/Inbox"))  
-         (sent     (concat "/" maildir "/Sent"))
-         (trash    (concat "/" maildir "/Trash"))
-         (refile   (concat "/" maildir "/Archive"))
-         (draft    (concat "/" maildir "/Drafts")))
-      
-      `(make-mu4e-context
-        :name ,c-name
-        :match-func (lambda (msg)
-                      (when msg
-                        (string-match-p (concat "^/" ,maildir "/")
-                                        (mu4e-message-field msg :maildir))))
-        :vars '((user-mail-address . ,mail)
-                (user-full-name . ,name)
-                (mu4e-sent-folder . ,sent)
-                (mu4e-drafts-folder . ,draft)
-                (mu4e-trash-folder . ,trash)
-                (mu4e-refile-folder . ,refile)
-                (mu4e-compose-signature . (concat ,sig))
-                (mu4e-sent-messages-behavior . ,sent-action)
-                (smtpmail-smtp-user . ,smtp-mail)
-                (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
-                (smtpmail-auth-credentials . '((,smtp ,smtp-port ,smtp-mail nil)))
-                (smtpmail-default-smtp-server . ,smtp)
-                (smtpmail-smtp-server . ,smtp)
-                (smtpmail-stream-type . ,smtp-type)
-                (smtpmail-smtp-service . ,smtp-port)
-                (org-msg-signature . ,sig)
-                (mu4e-maildir-shortcuts . 
-                                        ((,inbox   . ?i)
-                                         (,sent    . ?s)
-                                         (,trash   . ?t)
-                                         (,refile  . ?a)
-                                         (,draft   . ?d)))))))
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Variables
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  (setq df-mail-accounts '("Gmail" "GMX" "Proton" "Apple") 
-        message-citation-line-format "On %a, %b %d %Y, %N wrote:"
-        message-citation-line-function 'message-insert-formatted-citation-line
-        message-kill-buffer-on-exit t
-        message-send-mail-function 'smtpmail-send-it
-        mu4e-attachment-dir (expand-file-name "~/Downloads")
-        mu4e-change-filenames-when-moving t
-        mu4e-completing-read-function 'completing-read
-        mu4e-compose-context-policy 'ask
-        mu4e-compose-format-flowed t
-        mu4e-compose-signature-auto-include nil
-        mu4e-confirm-quit nil
-        mu4e-context-policy 'pick-first
-        mu4e-get-mail-command (format "INSIDE_EMACS=%s mbsync -a" emacs-version)
-        mu4e-headers-auto-update t
-        mu4e-headers-date-format "%d/%m/%Y %H:%M"
-        mu4e-headers-include-related nil
-        mu4e-headers-skip-duplicates t
-        mu4e-index-cleanup t
-        mu4e-index-lazy-check nil
-        mu4e-maildir (expand-file-name "~/Mail")
-        mu4e-main-buffer-hide-personal-addresses t
-        mu4e-main-buffer-name "*mu4e-main*"
-        mu4e-mu-binary "/usr/local/bin/mu"
-        mu4e-org-link-desc-func 'df/mail-link-description
-        mu4e-sent-messages-behavior 'sent
-        mu4e-update-interval 600
-        mu4e-use-fancy-chars t
-        mu4e-view-prefer-html t
-        mu4e-view-show-addresses 't
-        mu4e-view-show-images t
-        smtpmail-smtp-service 587
-        starttls-use-gnutls t
+(when (fboundp 'imagemagick-register-types)
+  (imagemagick-register-types))
 
-        df/inbox-query "maildir:/Inbox/" 
-        df/today-query "date:today..now AND NOT maildir:/Trash/ AND NOT maildir:/Spam/"
-        df/trash-query "maildir:/Trash/"
-        df/unread-query "flag:new AND NOT maildir:/Trash/ AND NOT maildir:/Spam/")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Update specific accounts
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun df/update-custom-account ()
+  (interactive)
+  (let ((account (completing-read
+                  "Select account: "
+                  (cons "All" df/mail-accounts) nil t nil nil "All"))
+        (command (format "INSIDE_EMACS=%s mbsync " emacs-version)))
+    (pcase account
+      ("All" (concat command "-a"))
+      (else (concat command else)))))
+
+(defun df/update-mail-and-index ()
+  (interactive)
+  (mu4e-kill-update-mail)
+  (if current-prefix-arg
+      (let ((mu4e-get-mail-command (df/update-custom-account)))
+        (mu4e-update-mail-and-index nil))
+    (mu4e-update-mail-and-index nil)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Trash without trashed flag
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setf (alist-get 'trash mu4e-marks)
+      '(:char ("d" . "▼")
+              :prompt "dtrash"
+              :dyn-target (lambda (target msg) (mu4e-get-trash-folder msg))
+              ;; Here's the main difference to the regular trash mark, no +T
+              ;; before -N so the message is not marked as IMAP-deleted:
+              :action (lambda (docid msg target)
+                        (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Consistent Refile
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setf (alist-get 'refile mu4e-marks)
+      '(:char ("r" . "▶")
+              :prompt "refile"
+              :dyn-target (lambda (target msg) (mu4e-get-refile-folder msg))
+              :action (lambda (docid msg target)
+                        (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))
 
 
-  (setq mu4e-bookmarks
-        `(( :name  "Unread"
-            :query ,df/unread-query
-            :key   ?u)
-          ( :name  "Inbox"
-            :query ,df/inbox-query
-            :key   ?i)
-          ( :name "Today"
-            :query ,df/today-query
-            :key   ?t)
-          ( :name "Flagged"
-            :query "flag:flagged"
-            :key   ?f)
-          ( :name "Tags"
-            :query "tag://"
-            :key   ?T)
-          ( :name "Trash"
-            :query ,df/trash-query
-            :key ?x
-            :hide-unread t)
-          ( :name "Attachments"
-            :query "mime:application/pdf or mime:image/jpg or mime:image/png"
-            :key   ?a
-            :hide-unread t)))
 
-  (setq mu4e-headers-fields '((:human-date . 18)
-                              (:flags      . 6)
-                              (:maildir    . 16)
-                              (:from-or-to . 26)
-                              (:subject    . 90)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Respond in text-mode if prefix
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Sometimes I want to respond in text to HTML messages
+;; e.g. when participating in github discussions using email
+(defun df/org-msg-select-format (alternative)
+  (if current-prefix-arg '(text) alternative))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Mail Identities
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  (setq mu4e-contexts
-        `(,(df/mu4e-context
-            :c-name  "Google"
-            :maildir "Gmail"
-            :mail    "a@gmail.com"
-            :smtp    "smtp.gmail.com"
-            :sent-action delete)
+(advice-add 'org-msg-get-alternatives
+            :filter-return #'df/org-msg-select-format)
 
-          ,(df/mu4e-context
-            :c-name  "1-GMX"
-            :maildir "GMX"
-            :mail    "a@gmx.com"
-            :smtp    "mail.gmx.com")
+;; Text Mode Signature
 
-          ,(df/mu4e-context
-            :c-name    "2-GMX-alias"
-            :maildir   "GMX"
-            :mail      "a.alias@gmx.com"
-            :smtp      "mail.gmx.com"
-            :smtp-mail "a@gmx.com")
+(defun df/customize-org-msg (orig-fun &rest args)
+  (let ((res (apply orig-fun args)))
+    (when (equal (cadr args) '(text))
+      (setf (alist-get 'signature res)
+            (replace-regexp-in-string "\\([\*/]\\)" ""
+                                      org-msg-signature))
+      (setf (alist-get 'greeting-fmt res) ""))
+    res))
 
-          ,(df/mu4e-context
-            :c-name  "Apple"
-            :maildir "Apple"
-            :mail    "a@icloud.com"
-            :smtp    "smtp.mail.me.com")
+(advice-add 'org-msg-composition-parameters :around #'df/customize-org-msg)
 
-          ,(df/mu4e-context
-            :c-name  "3-Apple-alias"
-            :maildir "Apple"
-            :mail    "a@me.com"
-            :smtp    "smtp.mail.me.com"
-            :smtp-mail "a@icloud.com")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Macro for Contexts
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(cl-defmacro df/mu4e-context (&key c-name maildir mail smtp
+                                   (smtp-mail mail)
+                                   (smtp-port 587)
+                                   (smtp-type 'starttls)
+                                   (sent-action 'sent)
+                                   (name "Daniel Fleischer")
+                                   (sig "\n\n*Daniel Fleischer*"))
+  (let
+      ((inbox  (concat "/" maildir "/Inbox"))  
+       (sent   (concat "/" maildir "/Sent"))
+       (trash  (concat "/" maildir "/Trash"))
+       (refile (concat "/" maildir "/Archive"))
+       (draft  (concat "/" maildir "/Drafts"))
+       (spam   (concat "/" maildir "/Spam")))
+    
+    `(make-mu4e-context
+      :name ,c-name
+      :match-func (lambda (msg)
+                    (when msg
+                      (string-match-p (concat "^/" ,maildir "/")
+                                      (mu4e-message-field msg :maildir))))
+      :vars '((user-mail-address . ,mail)
+              (user-full-name . ,name)
+              (mu4e-sent-folder . ,sent)
+              (mu4e-drafts-folder . ,draft)
+              (mu4e-trash-folder . ,trash)
+              (mu4e-refile-folder . ,refile)
+              (mu4e-compose-signature . (concat ,sig))
+              (mu4e-compose-format-flowed . t)
+              (mu4e-sent-messages-behavior . ,sent-action)
+              (smtpmail-smtp-user . ,smtp-mail)
+              (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
+              (smtpmail-auth-credentials . '((,smtp ,smtp-port ,smtp-mail nil)))
+              (smtpmail-default-smtp-server . ,smtp)
+              (smtpmail-smtp-server . ,smtp)
+              (smtpmail-stream-type . ,smtp-type)
+              (smtpmail-smtp-service . ,smtp-port)
+              (smtpmail-debug-info . t)
+              (smtpmail-debug-verbose . t)
+              (org-msg-signature . ,sig)
+              (mu4e-maildir-shortcuts . 
+                                      ((,inbox   . ?i)
+                                       (,sent    . ?s)
+                                       (,trash   . ?t)
+                                       (,refile  . ?a)
+                                       (,draft   . ?d)
+                                       (,spam    . ?g)))))))
 
-          ,(df/mu4e-context
-            :c-name    "Proton"
-            :maildir   "Proton"
-            :mail      "a@protonmail.com"
-            :smtp      "127.0.0.1"
-            :smtp-type ssl
-            :smtp-port 999)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Variables
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq df/mail-accounts '("Gmail" "GMX" "Apple" "Proton")
+      message-citation-line-function 'message-insert-formatted-citation-line
+      message-kill-buffer-on-exit t
+      message-send-mail-function 'smtpmail-send-it
+      mu4e-attachment-dir (expand-file-name "~/Downloads")
+      mu4e-change-filenames-when-moving t
+      mu4e-completing-read-function 'completing-read
+      mu4e-compose-context-policy 'ask
+      mu4e-compose-format-flowed t
+      mu4e-compose-signature-auto-include nil
+      mu4e-confirm-quit nil
+      mu4e-context-policy 'pick-first
+      mu4e-get-mail-command (format "INSIDE_EMACS=%s mbsync -a" emacs-version)
+      mu4e-headers-auto-update t
+      mu4e-headers-date-format "%d/%m/%Y %H:%M"
+      mu4e-headers-include-related nil
+      mu4e-headers-skip-duplicates t
+      mu4e-index-cleanup t
+      mu4e-index-lazy-check nil
+      mu4e-maildir (expand-file-name "~/Documents/Mail")
+      mu4e-main-buffer-hide-personal-addresses t
+      mu4e-main-buffer-name "*mu4e-main*"
+      mu4e-mu-binary "/usr/local/bin/mu"
+      mu4e-org-link-desc-func 'df/link-description
+      mu4e-sent-messages-behavior 'sent
+      mu4e-update-interval 400
+      mu4e-use-fancy-chars t
+      mu4e-view-prefer-html t
+      mu4e-view-show-addresses 't
+      mu4e-view-show-images t
+      smtpmail-smtp-service 587
+      starttls-use-gnutls t
+      message-citation-line-format "%N [%Y-%m-%d %a %H:%M] wrote:
+"
+      df/today-query "date:today..now AND NOT maildir:/Trash/ AND NOT maildir:/Spam/"
+      df/trash-query "maildir:/Trash/"
+      df/inbox-query "maildir:/Inbox/" 
+      df/unread-query "flag:new AND maildir:/Inbox/")
 
-          ,(df/mu4e-context
-            :c-name    "4-Proton-alias"
-            :maildir   "Proton"
-            :mail      "a@pm.com"
-            :smtp      "127.0.0.1"
-            :smtp-mail "a@protonmail.com"
-            :smtp-type ssl
-            :smtp-port 999))))
+(setq mu4e-bookmarks
+      `(( :name  "Unread"
+          :query ,df/unread-query
+          :key   ?u)
+        ( :name  "Inbox"
+          :query ,df/inbox-query
+          :key   ?i)
+        ( :name "Today"
+          :query ,df/today-query
+          :key   ?t)
+        ( :name "Flagged"
+          :query "flag:flagged"
+          :key   ?f)
+        ( :name "Tags"
+          :query "tag://"
+          :key   ?T)
+        ( :name "Trash"
+          :query ,df/trash-query
+          :key ?x
+          :hide-unread t)
+        ( :name "Attachments"
+          :query "mime:application/pdf or mime:image/jpg or mime:image/png"
+          :key   ?a
+          :hide-unread t)))
+
+(setq mu4e-headers-fields
+      '((:human-date   . 18)
+        (:flags        . 6)
+        (:maildir      . 16)
+        (:from-or-to   . 22)
+        (:mailing-list . 10)
+        (:tags         . 10)
+        (:subject      . 92)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Mail Identities
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq mu4e-contexts
+      `(,(df/mu4e-context
+          :c-name  "Google"
+          :maildir "Gmail"
+          :mail    "a@gmail.com"
+          :smtp    "smtp.gmail.com"
+          :sent-action delete)
+
+        ,(df/mu4e-context
+          :c-name  "1-GMX"
+          :maildir "GMX"
+          :mail    "a@gmx.com"
+          :smtp    "mail.gmx.com")
+
+        ,(df/mu4e-context
+          :c-name    "2-GMX-alias"
+          :maildir   "GMX"
+          :mail      "a.alias@gmx.com"
+          :smtp      "mail.gmx.com"
+          :smtp-mail "a@gmx.com")
+
+        ,(df/mu4e-context
+          :c-name  "Apple"
+          :maildir "Apple"
+          :mail    "a@icloud.com"
+          :smtp    "smtp.mail.me.com")
+
+        ,(df/mu4e-context
+          :c-name  "3-Apple-alias"
+          :maildir "Apple"
+          :mail    "a@me.com"
+          :smtp    "smtp.mail.me.com"
+          :smtp-mail "a@icloud.com")
+
+        ,(df/mu4e-context
+          :c-name    "Proton"
+          :maildir   "Proton"
+          :mail      "a@protonmail.com"
+          :smtp      "127.0.0.1"
+          :smtp-type ssl
+          :smtp-port 999)
+
+        ,(df/mu4e-context
+          :c-name    "4-Proton-alias"
+          :maildir   "Proton"
+          :mail      "a@pm.com"
+          :smtp      "127.0.0.1"
+          :smtp-mail "a@protonmail.com"
+          :smtp-type ssl
+          :smtp-port 999)))
+
+(provide 'mail)
+;;; mail.el ends here
