@@ -15,6 +15,13 @@ Install locally using the =load-path= variable, e.g.
   :bind ("C-c u" . mu4e))
 #+end_src
 
+Or install with Melpa; e.g.
+#+begin_src elisp
+(use-package mu4easy
+  :ensure t
+  :bind ("C-c u" . mu4e))
+#+end_src
+
 *Comments and suggestions are welcome*.
 
 - mbsync
