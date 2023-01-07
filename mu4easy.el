@@ -1,4 +1,4 @@
-;;; mu4easy.el --- Opinionated collection of packages and configuration for using mu4e with multiple accounts    -*- lexical-binding: t; -*-
+;;; mu4easy.el --- Packages + configs for using mu4e with multiple accounts    -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2023  Daniel Fleischer
 
@@ -261,7 +261,7 @@ Optional argument ARGS ."
                                    (name user-full-name)
                                    (sig mu4easy-signature))
   "Main macro for creating email accounts (contexts).
-See examples in the README file. 
+See examples in the README file.
 
 C-NAME context name, used in mu4e UI; first letter is going to be
     used as a shortcut.
@@ -384,7 +384,7 @@ SIG signature string; supports org formatting thanks to org-msg."
       :hide-unread t))
   "Preconfigured bookmarks for easy navigation.
 
-See `mu4e-bookmarks'."
+See variable `mu4e-bookmarks'."
   :type '(repeat (plist)))
 
 (setq mu4e-bookmarks mu4easy-bookmarks)
