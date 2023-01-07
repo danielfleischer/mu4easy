@@ -1,4 +1,4 @@
-;;; mu4easy.el --- mu4e configuration + friends   -*- lexical-binding: t; -*-
+;;; mu4easy.el --- Mu4e configuration + friends   -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2023  Daniel Fleischer
 
@@ -69,7 +69,7 @@ See also `org-msg-greeting-fmt'."
          :map mu4e-main-mode-map
          ("x" . bury-buffer)
          ("I" . mu4e-update-index)
-         ("U" . df/update-mail-and-index)))
+         ("U" . mu4easy-update-mail-and-index)))
 
 
 (use-package smtpmail)
@@ -129,7 +129,7 @@ See also `org-msg-greeting-fmt'."
         org-msg-convert-citation t)
   (org-msg-mode))
 
-(defun df/link-description (msg)
+(defun mu4easy-mail-link-description (msg)
   "Creating a link description to be used with `org-store-link'.
 Argument MSG msg at point."
   (let ((subject (or (plist-get msg :subject)
@@ -179,23 +179,23 @@ Argument MSG msg at point."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Update specific accounts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun df/update-custom-account ()
+(defun mu4easy-update-custom-account ()
   "Run mbsync update for a specific account."
   (interactive)
   (let ((account (completing-read
                   "Select account: "
-                  (cons "All" df/mail-accounts) nil t nil nil "All"))
+                  (cons "All" mu4easy-mail-accounts) nil t nil nil "All"))
         (command (format "INSIDE_EMACS=%s mbsync " emacs-version)))
     (pcase account
       ("All" (concat command "-a"))
       (else (concat command else)))))
 
-(defun df/update-mail-and-index ()
+(defun mu4easy-update-mail-and-index ()
   "Run a mu4e update; if prefix, focus on a specific account."
   (interactive)
   (mu4e-kill-update-mail)
   (if current-prefix-arg
-      (let ((mu4e-get-mail-command (df/update-custom-account)))
+      (let ((mu4e-get-mail-command (mu4easy-update-custom-account)))
         (mu4e-update-mail-and-index nil))
     (mu4e-update-mail-and-index nil)))
 
@@ -226,15 +226,20 @@ Argument MSG msg at point."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Sometimes I want to respond in text to HTML messages
 ;; e.g. when participating in github discussions using email
-(defun df/org-msg-select-format (alternative)
+(defun mu4easy-org-msg-select-format (alternative)
+  "Wrapping function to override email format (html/text).
+Argument ALTERNATIVE passthrough agrument when advicing."
   (if current-prefix-arg '(text) alternative))
 
 (advice-add 'org-msg-get-alternatives
-            :filter-return #'df/org-msg-select-format)
+            :filter-return #'mu4easy-org-msg-select-format)
 
 ;; Text Mode Signature
 
-(defun df/customize-org-msg (orig-fun &rest args)
+(defun mu4easy-customize-org-msg (orig-fun &rest args)
+  "Fix for signature and greeting when email is text.
+Argument ORIG-FUN function being adviced.
+Optional argument ARGS ."
   (let ((res (apply orig-fun args)))
     (when (equal (cadr args) '(text))
       (setf (alist-get 'signature res)
@@ -243,18 +248,31 @@ Argument MSG msg at point."
       (setf (alist-get 'greeting-fmt res) ""))
     res))
 
-(advice-add 'org-msg-composition-parameters :around #'df/customize-org-msg)
+(advice-add 'org-msg-composition-parameters :around #'mu4easy-customize-org-msg)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Macro for Contexts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(cl-defmacro df/mu4e-context (&key c-name maildir mail smtp
+(cl-defmacro mu4easy-context (&key c-name maildir mail smtp
                                    (smtp-mail mail)
                                    (smtp-port 587)
                                    (smtp-type 'starttls)
                                    (sent-action 'sent)
                                    (name user-full-name)
                                    (sig mu4easy-signature))
+  "Main macro for creating email accounts (contexts).
+C-NAME context name, used in mu4e UI; first letter is going to be
+    used as a shortcut.
+MAILDIR mail dir under path/Mail/...
+MAIL email address or alias.
+SMTP address.
+SMTP-MAIL email address for this account (not alias).
+SMTP-TYPE default `starttls'.
+SMTP-PORT default 587.
+SENT-ACTION what to do after sending an email (copy to `sent' or delete);
+    see README.
+NAME name can be set per account.
+SIG signature string; supports org formatting thanks to org-msg."
   (let
       ((inbox  (concat "/" maildir "/Inbox"))
        (sent   (concat "/" maildir "/Sent"))
@@ -299,7 +317,7 @@ Argument MSG msg at point."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Variables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq df/mail-accounts mu4easy-account
+(setq mu4easy-mail-accounts mu4easy-account
       message-citation-line-function 'message-insert-formatted-citation-line
       message-kill-buffer-on-exit t
       message-send-mail-function 'smtpmail-send-it
@@ -322,7 +340,7 @@ Argument MSG msg at point."
       mu4e-main-buffer-hide-personal-addresses t
       mu4e-main-buffer-name "*mu4e-main*"
       mu4e-mu-binary "/usr/local/bin/mu"
-      mu4e-org-link-desc-func 'df/link-description
+      mu4e-org-link-desc-func 'mu4easy-mail-link-description
       mu4e-sent-messages-behavior 'sent
       mu4e-update-interval 400
       mu4e-use-fancy-chars t
@@ -333,20 +351,20 @@ Argument MSG msg at point."
       starttls-use-gnutls t
       message-citation-line-format "%N [%Y-%m-%d %a %H:%M] wrote:
 "
-      df/today-query "date:today..now AND NOT maildir:/Trash/ AND NOT maildir:/Spam/"
-      df/trash-query "maildir:/Trash/"
-      df/inbox-query "maildir:/Inbox/"
-      df/unread-query "flag:new AND maildir:/Inbox/")
+      mu4easy-today-query "date:today..now AND NOT maildir:/Trash/ AND NOT maildir:/Spam/"
+      mu4easy-trash-query "maildir:/Trash/"
+      mu4easy-inbox-query "maildir:/Inbox/"
+      mu4easy-unread-query "flag:new AND maildir:/Inbox/")
 
 (setq mu4e-bookmarks
       `(( :name  "Unread"
-          :query ,df/unread-query
+          :query ,mu4easy-unread-query
           :key   ?u)
         ( :name  "Inbox"
-          :query ,df/inbox-query
+          :query ,mu4easy-inbox-query
           :key   ?i)
         ( :name "Today"
-          :query ,df/today-query
+          :query ,mu4easy-today-query
           :key   ?t)
         ( :name "Flagged"
           :query "flag:flagged"
@@ -355,7 +373,7 @@ Argument MSG msg at point."
           :query "tag://"
           :key   ?T)
         ( :name "Trash"
-          :query ,df/trash-query
+          :query ,mu4easy-trash-query
           :key ?x
           :hide-unread t)
         ( :name "Attachments"
@@ -376,40 +394,40 @@ Argument MSG msg at point."
 ;; Mail Identities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq mu4e-contexts
-      `(,(df/mu4e-context
+      `(,(mu4easy-context
           :c-name  "Google"
           :maildir "Gmail"
           :mail    "a@gmail.com"
           :smtp    "smtp.gmail.com"
           :sent-action delete)
 
-        ,(df/mu4e-context
+        ,(mu4easy-context
           :c-name  "1-GMX"
           :maildir "GMX"
           :mail    "a@gmx.com"
           :smtp    "mail.gmx.com")
 
-        ,(df/mu4e-context
+        ,(mu4easy-context
           :c-name    "2-GMX-alias"
           :maildir   "GMX"
           :mail      "a.alias@gmx.com"
           :smtp      "mail.gmx.com"
           :smtp-mail "a@gmx.com")
 
-        ,(df/mu4e-context
+        ,(mu4easy-context
           :c-name  "Apple"
           :maildir "Apple"
           :mail    "a@icloud.com"
           :smtp    "smtp.mail.me.com")
 
-        ,(df/mu4e-context
+        ,(mu4easy-context
           :c-name  "3-Apple-alias"
           :maildir "Apple"
           :mail    "a@me.com"
           :smtp    "smtp.mail.me.com"
           :smtp-mail "a@icloud.com")
 
-        ,(df/mu4e-context
+        ,(mu4easy-context
           :c-name    "Proton"
           :maildir   "Proton"
           :mail      "a@protonmail.com"
@@ -417,7 +435,7 @@ Argument MSG msg at point."
           :smtp-type ssl
           :smtp-port 999)
 
-        ,(df/mu4e-context
+        ,(mu4easy-context
           :c-name    "4-Proton-alias"
           :maildir   "Proton"
           :mail      "a@pm.com"

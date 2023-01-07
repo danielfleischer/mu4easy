@@ -251,7 +251,7 @@ instead flags the message as =seen=, removes the flags =unseen= and =new= and fi
 synced to the server and gets deleted according to a policy you control.
 
 #+begin_src elisp
-(cl-defmacro df/mu4e-context (&key c-name maildir mail smtp
+(cl-defmacro mu4easy-context (&key c-name maildir mail smtp
                                    (smtp-mail mail)
                                    (smtp-port 587)
                                    (smtp-type 'starttls)
@@ -313,7 +313,7 @@ formatted HTML. Also, when using *org-msg*, reply style is /top-posting/ so you 
 (above the replied text).
 
 Another improvement is creating a customized link description; i.e. calling ~org-store-link~ to save a link to an email,
-it uses ~df/mail-link-description~ which will give a nice description of the form =to/from: subject (ISO timestamp)= - works
+it uses ~mu4easy-mail-link-description~ which will give a nice description of the form =to/from: subject (ISO timestamp)= - works
 with =org-capture= as well.
 
 Added is a custom updating function that asks you which account to update, or by default updates all. It is bound to the
@@ -323,40 +323,40 @@ Finally, setting up the accounts:
 #+begin_src elisp
 (setq mu4e-contexts
 
-      `(,(df/mu4e-context
+      `(,(mu4easy-context
           :c-name  "Google"
           :maildir "Gmail"
           :mail    "a@gmail.com"
           :smtp    "smtp.gmail.com"
           :sent-action delete)
         
-        ,(df/mu4e-context
+        ,(mu4easy-context
           :c-name  "1-GMX"
           :maildir "GMX"
           :mail    "a@gmx.com"
           :smtp    "mail.gmx.com")
         
-        ,(df/mu4e-context
+        ,(mu4easy-context
           :c-name    "2-GMX-alias"
           :maildir   "GMX"
           :mail      "a.alias@gmx.com"
           :smtp      "mail.gmx.com"
           :smtp-mail "a@gmx.com")
         
-        ,(df/mu4e-context
+        ,(mu4easy-context
           :c-name  "Apple"
           :maildir "Apple"
           :mail    "a@icloud.com"
           :smtp    "smtp.mail.me.com")
         
-        ,(df/mu4e-context
+        ,(mu4easy-context
           :c-name  "3-Apple-alias"
           :maildir "Apple"
           :mail    "a@me.com"
           :smtp    "smtp.mail.me.com"
           :smtp-mail "a@icloud.com")
         
-        ,(df/mu4e-context
+        ,(mu4easy-context
           :c-name    "Proton"
           :maildir   "Proton"
           :mail      "a@protonmail.com"
@@ -364,7 +364,7 @@ Finally, setting up the accounts:
           :smtp-type ssl
           :smtp-port 999)
         
-        ,(df/mu4e-context
+        ,(mu4easy-context
           :c-name    "4-Proton-alias"
           :maildir   "Proton"
           :mail      "a@pm.com"
