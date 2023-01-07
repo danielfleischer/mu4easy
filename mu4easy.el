@@ -1,6 +1,6 @@
 ;;; mu4easy.el --- Packages + configs for using mu4e with multiple accounts    -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2023  Daniel Fleischer
+;; Copyright (C) 2021-2023  Daniel Fleischer
 
 ;; Author: Daniel Fleischer;;  <danflscr@gmail.com>
 ;; Keywords: mail
