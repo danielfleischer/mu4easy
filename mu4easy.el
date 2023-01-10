@@ -5,7 +5,7 @@
 ;; Author: Daniel Fleischer;;  <danflscr@gmail.com>
 ;; Keywords: mail
 ;; Homepage: https://github.com/danielfleischer/mu4easy
-;; Package-Version: 1.0
+;; Version: 1.0
 ;; Package-Requires: ((emacs "25.1") (quelpa "1.0") (use-package "2"))
 
 ;; This program is free software; you can redistribute it and/or modify
