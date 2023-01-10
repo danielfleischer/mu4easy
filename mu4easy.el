@@ -6,7 +6,7 @@
 ;; Keywords: mail
 ;; Homepage: https://github.com/danielfleischer/mu4easy
 ;; Version: 1.0
-;; Package-Requires: ((emacs "25.1") (quelpa "1.0") (use-package "2"))
+;; Package-Requires: ((emacs "25.1") (quelpa "1.0") (use-package "2") (quelpa-use-package "0.0.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -33,8 +33,7 @@
 ;;; Code:
 (require 'use-package)
 (require 'quelpa)
-(use-package quelpa-use-package
-  :ensure t)
+(require 'quelpa-use-package)
 
 (defgroup mu4easy nil
   "Easy configuration for mu4e."
