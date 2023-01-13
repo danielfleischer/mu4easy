@@ -6,7 +6,7 @@
 ;; Keywords: mail
 ;; Homepage: https://github.com/danielfleischer/mu4easy
 ;; Version: 1.0
-;; Package-Requires: ((emacs "25.1") (use-package "2"))
+;; Package-Requires: ((emacs "25.1") (use-package "2") (mu4e-column-faces "1.2.1") (mu4e-alert "1.0") (helm-mu "1.0.0") (org-msg "4.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -68,7 +68,6 @@ See also `org-msg-greeting-fmt'."
          ("I" . mu4e-update-index)
          ("U" . mu4easy-update-mail-and-index)))
 
-
 (use-package smtpmail)
 
 (use-package mu4e-icalendar
@@ -83,26 +82,18 @@ See also `org-msg-greeting-fmt'."
               ("M" . mu4e-headers-mark-all)
               ("N" . mu4e-headers-mark-all-unread-read)))
 
-(use-package mu4e-goodies-tags
-  :quelpa (mu4e-goodies-tags :fetcher github
-                             :repo "panjie/mu4e-goodies"
-                             :files ("mu4e-goodies-tags.el"
-                                     "mu4e-goodies-utils.el")))
-
 (use-package mu4e-column-faces
   :ensure t
   :config (mu4e-column-faces-mode))
 
 (use-package mu4e-alert
-  :quelpa (mu4e-alert :fetcher github
-                      :repo "xzz53/mu4e-alert")
+  :ensure t
   :config
   (mu4e-alert-enable-notifications)
   (mu4e-alert-enable-mode-line-display))
 
 (use-package helm-mu
-  :quelpa (helm-mu :fetcher github
-                   :repo "danielfleischer/helm-mu")
+  :ensure t
   :bind
   (("C-c h h c" . 'helm-mu-contacts)
    (:map mu4e-search-minor-mode-map
