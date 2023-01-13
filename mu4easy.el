@@ -65,37 +65,7 @@ See also `org-msg-greeting-fmt'."
   "Location of downloads dir."
   :type '(directory))
 
-(setq mail-user-agent 'mu4e-user-agent)
-
-
-
-
-
-(mu4e-icalendar-setup)
-(mu4e-column-faces-mode)
-(mu4e-alert-enable-notifications)
-(mu4e-alert-enable-mode-line-display)
-(org-msg-mode)
-
-
 ;;; Variables
-(setq mu4e-icalendar-trash-after-reply nil
-      mu4e-icalendar-diary-file diary-file)
-
-(setq helm-mu-append-implicit-wildcard nil
-      helm-mu-gnu-sed-program "gsed")
-
-(setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick"
-      org-msg-startup "hidestars indent inlineimages"
-      org-msg-default-alternatives '((new           . (text html))
-                                     (reply-to-html . (text html))
-                                     (reply-to-text . (text)))
-      org-msg-signature mu4easy-signature
-      org-msg-greeting-fmt mu4easy-greeting
-      org-msg-posting-style 'top-posting
-      org-msg-greeting-name-limit 2
-      org-msg-convert-citation t)
-
 (defun mu4easy-mail-link-description (msg)
   "Creating a link description to be used with `org-store-link'.
 Argument MSG msg at point."
@@ -185,7 +155,6 @@ Argument ALTERNATIVE passthrough agrument when advicing."
             :filter-return #'mu4easy-org-msg-select-format)
 
 ;; Text Mode Signature
-
 (defun mu4easy-customize-org-msg (orig-fun &rest args)
   "Fix for signature and greeting when email is text.
 Argument ORIG-FUN function being adviced.
@@ -197,8 +166,6 @@ Optional argument ARGS ."
                                       org-msg-signature))
       (setf (alist-get 'greeting-fmt res) ""))
     res))
-
-(advice-add 'org-msg-composition-parameters :around #'mu4easy-customize-org-msg)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Macro for Contexts
@@ -265,48 +232,6 @@ SIG signature string; supports org formatting thanks to org-msg."
                                        (,refile  . ?a)
                                        (,draft   . ?d)
                                        (,spam    . ?g)))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Variables
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq mu4easy-mail-accounts mu4easy-account
-      message-citation-line-function 'message-insert-formatted-citation-line
-      message-kill-buffer-on-exit t
-      message-send-mail-function 'smtpmail-send-it
-      mu4e-attachment-dir (expand-file-name mu4easy-download-dir)
-      mu4e-change-filenames-when-moving t
-      mu4e-completing-read-function 'completing-read
-      mu4e-compose-context-policy 'ask
-      mu4e-compose-format-flowed t
-      mu4e-compose-signature-auto-include nil
-      mu4e-confirm-quit nil
-      mu4e-context-policy 'pick-first
-      mu4e-get-mail-command (format "INSIDE_EMACS=%s mbsync -a" emacs-version)
-      mu4e-headers-auto-update t
-      mu4e-headers-date-format "%d/%m/%Y %H:%M"
-      mu4e-headers-include-related nil
-      mu4e-headers-skip-duplicates t
-      mu4e-index-cleanup t
-      mu4e-index-lazy-check nil
-      mu4e-maildir (expand-file-name mu4easy-maildir)
-      mu4e-main-buffer-hide-personal-addresses t
-      mu4e-main-buffer-name "*mu4e-main*"
-      mu4e-mu-binary "/usr/local/bin/mu"
-      mu4e-org-link-desc-func 'mu4easy-mail-link-description
-      mu4e-sent-messages-behavior 'sent
-      mu4e-update-interval 400
-      mu4e-use-fancy-chars t
-      mu4e-view-prefer-html t
-      mu4e-view-show-addresses 't
-      mu4e-view-show-images t
-      smtpmail-smtp-service 587
-      starttls-use-gnutls t
-      message-citation-line-format "%N [%Y-%m-%d %a %H:%M] wrote:
-"
-      mu4easy-today-query "date:today..now AND NOT maildir:/Trash/ AND NOT maildir:/Spam/"
-      mu4easy-trash-query "maildir:/Trash/"
-      mu4easy-inbox-query "maildir:/Inbox/"
-      mu4easy-unread-query "flag:new AND maildir:/Inbox/")
 
 (defcustom mu4easy-bookmarks
   `(( :name  "Unread"
@@ -432,24 +357,136 @@ See `mu4easy-context' for function signature."
   :keymap mu4easy-map
   (cond (mu4easy-mode
          (mu4easy-extra-maps)
-         (add-hook 'org-msg-edit-mode-hook     mu4easy--org-msg-hook)
-         (add-hook 'mu4e-compose-mode-hook     mu4easy--compose-hook)
-         (add-hook 'mu4e-context-changed-hook  mu4easy--update-buffer)
+         (mu4e-icalendar-setup)
+         (mu4e-column-faces-mode)
+         (mu4e-alert-enable-notifications)
+         (mu4e-alert-enable-mode-line-display)
+         (org-msg-mode)
+         (add-hook 'org-msg-edit-mode-hook     #'mu4easy--org-msg-hook)
+         (add-hook 'mu4e-compose-mode-hook     #'mu4easy--compose-hook)
+         (add-hook 'mu4e-context-changed-hook  #'mu4easy--update-buffer)
+         (advice-add 'org-msg-composition-parameters :around #'mu4easy-customize-org-msg)
          (add-to-list 'mu4e-view-actions
                       '("Apply Email" . mu4e-action-git-apply-mbox) t)
+         (setq mail-user-agent 'mu4e-user-agent)
          (setq mu4e-contexts (mapcar #'eval mu4easy-contexts))
          (setq mu4e-bookmarks mu4easy-bookmarks)
          (setq mu4e-headers-fields mu4easy-headers)
-         )
+         (setq mu4easy-mail-accounts mu4easy-account)
+         (setq message-citation-line-function 'message-insert-formatted-citation-line)
+         (setq message-kill-buffer-on-exit t)
+         (setq message-send-mail-function 'smtpmail-send-it)
+         (setq mu4e-attachment-dir (expand-file-name mu4easy-download-dir))
+         (setq mu4e-change-filenames-when-moving t)
+         (setq mu4e-completing-read-function 'completing-read)
+         (setq mu4e-compose-context-policy 'ask)
+         (setq mu4e-compose-format-flowed t)
+         (setq mu4e-compose-signature-auto-include nil)
+         (setq mu4e-confirm-quit nil)
+         (setq mu4e-context-policy 'pick-first)
+         (setq mu4e-get-mail-command (format "INSIDE_EMACS=%s mbsync -a" emacs-version))
+         (setq mu4e-headers-auto-update t)
+         (setq mu4e-headers-date-format "%d/%m/%Y %H:%M")
+         (setq mu4e-headers-include-related nil)
+         (setq mu4e-headers-skip-duplicates t)
+         (setq mu4e-index-cleanup t)
+         (setq mu4e-index-lazy-check nil)
+         (setq mu4e-maildir (expand-file-name mu4easy-maildir))
+         (setq mu4e-main-buffer-hide-personal-addresses t)
+         (setq mu4e-main-buffer-name "*mu4e-main*")
+         (setq mu4e-mu-binary "/usr/local/bin/mu")
+         (setq mu4e-org-link-desc-func 'mu4easy-mail-link-description)
+         (setq mu4e-sent-messages-behavior 'sent)
+         (setq mu4e-update-interval 400)
+         (setq mu4e-use-fancy-chars t)
+         (setq mu4e-view-prefer-html t)
+         (setq mu4e-view-show-addresses 't)
+         (setq mu4e-view-show-images t)
+         (setq smtpmail-smtp-service 587)
+         (setq starttls-use-gnutls t)
+         (setq message-citation-line-format "%N [%Y-%m-%d %a %H:%M] wrote:
+")
+         (setq mu4easy-today-query "date:today..now AND NOT maildir:/Trash/ AND NOT maildir:/Spam/")
+         (setq mu4easy-trash-query "maildir:/Trash/")
+         (setq mu4easy-inbox-query "maildir:/Inbox/")
+         (setq mu4easy-unread-query "flag:new AND maildir:/Inbox/")
+         (setq mu4e-icalendar-trash-after-reply nil)
+         (setq mu4e-icalendar-diary-file diary-file)
+         (setq helm-mu-append-implicit-wildcard nil)
+         (setq helm-mu-gnu-sed-program "gsed")
+         (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick")
+         (setq org-msg-startup "hidestars indent inlineimages")
+         (setq org-msg-default-alternatives '((new           . (text html))
+                                              (reply-to-html . (text html))
+                                              (reply-to-text . (text))))
+         (setq org-msg-signature mu4easy-signature)
+         (setq org-msg-greeting-fmt mu4easy-greeting)
+         (setq org-msg-posting-style 'top-posting)
+         (setq org-msg-greeting-name-limit 2)
+         (setq org-msg-convert-citation t))
         (t
          ;; remove all the hooks
-         (remove-hook 'org-msg-edit-mode-hook     mu4easy--org-msg-hook)
-         (remove-hook 'mu4e-compose-mode-hook     mu4easy--compose-hook)
-         (remove-hook 'mu4e-context-changed-hook  mu4easy--update-buffer)
+         (remove-hook 'org-msg-edit-mode-hook     #'mu4easy--org-msg-hook)
+         (remove-hook 'mu4e-compose-mode-hook     #'mu4easy--compose-hook)
+         (remove-hook 'mu4e-context-changed-hook  #'mu4easy--update-buffer)
+         (advice-remove 'org-msg-composition-parameters #'mu4easy-customize-org-msg)
+         (mu4e-column-faces-mode -1)
+         (mu4e-alert-disable-notifications)
+         (mu4e-alert-disable-mode-line-display)
+         (org-msg-mode -1)
+         (custom-reevaluate-setting 'mail-user-agent)
          (custom-reevaluate-setting 'mu4e-contexts)
          (custom-reevaluate-setting 'mu4e-bookmarks)
          (custom-reevaluate-setting 'mu4e-headers-fields)
-         )))
+         (custom-reevaluate-setting 'mu4easy-mail-accounts)
+         (custom-reevaluate-setting 'message-citation-line-function)
+         (custom-reevaluate-setting 'message-kill-buffer-on-exit)
+         (custom-reevaluate-setting 'message-send-mail-function)
+         (custom-reevaluate-setting 'mu4e-attachment-dir)
+         (custom-reevaluate-setting 'mu4e-change-filenames-when-moving)
+         (custom-reevaluate-setting 'mu4e-completing-read-function)
+         (custom-reevaluate-setting 'mu4e-compose-context-policy)
+         (custom-reevaluate-setting 'mu4e-compose-format-flowed)
+         (custom-reevaluate-setting 'mu4e-compose-signature-auto-include)
+         (custom-reevaluate-setting 'mu4e-confirm-quit)
+         (custom-reevaluate-setting 'mu4e-context-policy)
+         (custom-reevaluate-setting 'mu4e-get-mail-command)
+         (custom-reevaluate-setting 'mu4e-headers-auto-update)
+         (custom-reevaluate-setting 'mu4e-headers-date-format)
+         (custom-reevaluate-setting 'mu4e-headers-include-related)
+         (custom-reevaluate-setting 'mu4e-headers-skip-duplicates)
+         (custom-reevaluate-setting 'mu4e-index-cleanup)
+         (custom-reevaluate-setting 'mu4e-index-lazy-check)
+         (custom-reevaluate-setting 'mu4e-maildir)
+         (custom-reevaluate-setting 'mu4e-main-buffer-hide-personal-addresses)
+         (custom-reevaluate-setting 'mu4e-main-buffer-name)
+         (custom-reevaluate-setting 'mu4e-mu-binary)
+         (custom-reevaluate-setting 'mu4e-org-link-desc-func)
+         (custom-reevaluate-setting 'mu4e-sent-messages-behavior)
+         (custom-reevaluate-setting 'mu4e-update-interval)
+         (custom-reevaluate-setting 'mu4e-use-fancy-chars)
+         (custom-reevaluate-setting 'mu4e-view-prefer-html)
+         (custom-reevaluate-setting 'mu4e-view-show-addresses)
+         (custom-reevaluate-setting 'mu4e-view-show-images)
+         (custom-reevaluate-setting 'smtpmail-smtp-service)
+         (custom-reevaluate-setting 'starttls-use-gnutls)
+         (custom-reevaluate-setting 'message-citation-line-format)
+         (custom-reevaluate-setting 'mu4easy-today-query)
+         (custom-reevaluate-setting 'mu4easy-trash-query)
+         (custom-reevaluate-setting 'mu4easy-inbox-query)
+         (custom-reevaluate-setting 'mu4easy-unread-query)
+         (custom-reevaluate-setting 'mu4e-icalendar-trash-after-reply)
+         (custom-reevaluate-setting 'mu4e-icalendar-diary-file)
+         (custom-reevaluate-setting 'helm-mu-append-implicit-wildcard)
+         (custom-reevaluate-setting 'helm-mu-gnu-sed-program)
+         (custom-reevaluate-setting 'org-msg-options)
+         (custom-reevaluate-setting 'org-msg-startup)
+         (custom-reevaluate-setting 'org-msg-default-alternatives)
+         (custom-reevaluate-setting 'org-msg-signature)
+         (custom-reevaluate-setting 'org-msg-greeting-fmt)
+         (custom-reevaluate-setting 'org-msg-posting-style)
+         (custom-reevaluate-setting 'org-msg-greeting-name-limit)
+         (custom-reevaluate-setting 'org-msg-convert-citation))))
 
 
 
