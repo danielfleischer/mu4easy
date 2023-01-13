@@ -81,18 +81,21 @@ Argument MSG msg at point."
 ;; Hooks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun mu4easy--org-msg-hook ()
+  "Settings for org-msg mode."
   (set-fill-column 120)
   (turn-on-auto-fill)
   (electric-indent-local-mode -1)
   (turn-on-flyspell))
 
 (defun mu4easy--compose-hook ()
+  "Settings for mu4e compose mode."
   (set-fill-column 120)
   (turn-on-auto-fill)
   (electric-indent-local-mode -1)
   (turn-on-flyspell))
 
 (defun mu4easy--update-buffer ()
+  "Revert buffer when switching to mu4e to update the stats."
   (when (derived-mode-p 'mu4e-main-mode)
     (revert-buffer)))
 
@@ -328,8 +331,8 @@ See variable `mu4e-headers-fields'"
      :smtp-port 999))
   
   "Defining accounts and aliases.
-After changing it, reload the minor mode. 
-See `mu4easy-context' for function signature."      
+After changing it, reload the minor mode.
+See `mu4easy-context' for function signature."
   :type '(repeat sexp))
 
 (defun mu4easy--maps ()
