@@ -4,21 +4,17 @@
 :ID:       2021-05-09-22-31-33-d9a
 :END:
 
-Complete and working mu4e setup using =mbsync= and mu1.9+. Setup includes working with *Google*, *Apple*, *GMX* and *Proton* together with aliases. There are additional packages to improve the experience; the main contribution is the context-generating macro which lets you add and manage accounts with ease. For the additional packages, =melpa= is used. 
+A global minor mode that defines a full working setup for mu4e and =mbsync=, based on mu 1.8+. Easily setup accounts and aliases from these providers: *Google*, *Apple*, *GMX* and *Proton*. Additional packages are installed and configured for a better experience, including =mu4e-column-faces=, =mu4e-alert=, =org-msg= and =helm-mu=. Some customizations are available, run =(customize-group 'mu4easy)=. 
 
-Install locally using the =load-path= variable, e.g.
+Install locally and use the =load-path= variable, e.g.:
 #+begin_src elisp
 (use-package mu4easy
   :load-path "~/Code/mu4easy"
-  :bind ("C-c u" . mu4e))
+  :bind ("C-c u" . mu4e)
+  :config (mu4easy-mode))
 #+end_src
 
-Or install with Melpa (coming soon); e.g.
-#+begin_src elisp
-(use-package mu4easy
-  :ensure t
-  :bind ("C-c u" . mu4e))
-#+end_src
+Or install with Melpa (coming soon).
 
 *Comments and suggestions are welcome*.
 
@@ -243,9 +239,7 @@ In order to us Proton, one needs to install a bridge application. It specifies t
 :CREATED:  [2021-05-09 Sun 22:53]
 :END:
 
-Let's go over the important parts of the elisp code. I'm using =use-package= and =quelpa= to download packages from github
-and load them lazily. You can adapt it to your way of managing packages. Some notable packages are [[https://github.com/panjie/mu4e-goodies][mu4e-goodies]],
-[[https://github.com/emacs-helm/helm-mu][helm-mu]], [[https://github.com/jeremy-compostella/org-msg][org-msg]]. 
+Let's go over the important parts of the elisp code.
 
 #+begin_src elisp
 (setf (alist-get 'trash mu4e-marks)
@@ -334,7 +328,7 @@ usual "U".
 
 Finally, setting up the accounts:
 #+begin_src elisp
-(setq mu4e-contexts
+(defcustom mu4easy-contexts
 
       `(,(mu4easy-context
           :c-name  "Google"
