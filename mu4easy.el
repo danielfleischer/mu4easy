@@ -44,7 +44,7 @@
   "Easy configuration for mu4e."
   :group 'mail)
 
-(defcustom mu4easy-account '("Gmail" "GMX" "Apple" "Proton")
+(defcustom mu4easy-accounts '("Gmail" "GMX" "Apple" "Proton")
   "List of email accounts names, as defined on disk."
   :type '(repeat string))
 
@@ -103,7 +103,7 @@ Argument MSG msg at point."
   (interactive)
   (let ((account (completing-read
                   "Select account: "
-                  (cons "All" mu4easy-mail-accounts) nil t nil nil "All"))
+                  (cons "All" mu4easy-accounts) nil t nil nil "All"))
         (command (format "INSIDE_EMACS=%s mbsync " emacs-version)))
     (pcase account
       ("All" (concat command "-a"))
@@ -343,7 +343,7 @@ See `mu4easy-context' for function signature."
   (define-key mu4e-view-mode-map          (kbd "<backtab>")  #'shr-previous-link)
   (define-key mu4e-search-minor-mode-map  (kbd "s")          #'helm-mu)
   (define-key mu4e-headers-mode-map       (kbd "M")          #'mu4e-headers-mark-all)
-  (define-key mu4e-headers-mode-map       (kbd "N")          #'mu4e-headers-mark-unread-read))
+  (define-key mu4e-headers-mode-map       (kbd "N")          #'mu4e-headers-mark-all-unread-read))
 
 ;;;###autoload
 (define-minor-mode mu4easy-mode
@@ -368,7 +368,6 @@ See `mu4easy-context' for function signature."
          (setq mu4e-contexts (mapcar #'eval mu4easy-contexts))
          (setq mu4e-bookmarks mu4easy-bookmarks)
          (setq mu4e-headers-fields mu4easy-headers)
-         (setq mu4easy-mail-accounts mu4easy-account)
          (setq message-citation-line-function 'message-insert-formatted-citation-line)
          (setq message-kill-buffer-on-exit t)
          (setq message-send-mail-function 'smtpmail-send-it)
@@ -394,7 +393,6 @@ See `mu4easy-context' for function signature."
          (setq mu4e-sent-messages-behavior 'sent)
          (setq mu4e-update-interval 400)
          (setq mu4e-use-fancy-chars t)
-         (setq starttls-use-gnutls t)
          (setq message-citation-line-format "%N [%Y-%m-%d %a %H:%M] wrote:
 ")
          (setq mu4e-icalendar-trash-after-reply nil)
@@ -426,7 +424,6 @@ See `mu4easy-context' for function signature."
          (custom-reevaluate-setting 'mu4e-contexts)
          (custom-reevaluate-setting 'mu4e-bookmarks)
          (custom-reevaluate-setting 'mu4e-headers-fields)
-         (custom-reevaluate-setting 'mu4easy-mail-accounts)
          (custom-reevaluate-setting 'message-citation-line-function)
          (custom-reevaluate-setting 'message-kill-buffer-on-exit)
          (custom-reevaluate-setting 'message-send-mail-function)
@@ -452,7 +449,6 @@ See `mu4easy-context' for function signature."
          (custom-reevaluate-setting 'mu4e-sent-messages-behavior)
          (custom-reevaluate-setting 'mu4e-update-interval)
          (custom-reevaluate-setting 'mu4e-use-fancy-chars)
-         (custom-reevaluate-setting 'starttls-use-gnutls)
          (custom-reevaluate-setting 'message-citation-line-format)
          (custom-reevaluate-setting 'mu4e-icalendar-trash-after-reply)
          (custom-reevaluate-setting 'mu4e-icalendar-diary-file)
