@@ -332,14 +332,7 @@ After changing it, reload the minor mode.
 See `mu4easy-context' for function signature."      
   :type '(repeat sexp))
 
-(defvar mu4easy-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c u") #'mu4e)
-    (define-key map (kbd "C-c h h c") #'helm-mu-contacts)
-    map)
-  "Keymap for the mu4easy minor mode.")
-
-(defun mu4easy-extra-maps ()
+(defun mu4easy--maps ()
   "Define additional mapping for specific modes related to mu4e."
   (define-key mu4e-main-mode-map          (kbd "x")          #'bury-buffer)
   (define-key mu4e-main-mode-map          (kbd "I")          #'mu4e-update-index)
@@ -350,12 +343,13 @@ See `mu4easy-context' for function signature."
   (define-key mu4e-headers-mode-map       (kbd "M")          #'mu4e-headers-mark-all)
   (define-key mu4e-headers-mode-map       (kbd "N")          #'mu4e-headers-mark-unread-read))
 
+;;;###autoload
 (define-minor-mode mu4easy-mode
   "Toggle mu4easy configuration and keymaps."
   :lighter nil
   :global t
-  :keymap mu4easy-map
   (cond (mu4easy-mode
+         (mu4easy-maps)
          (mu4easy-extra-maps)
          (mu4e-icalendar-setup)
          (mu4e-column-faces-mode)
@@ -487,12 +481,6 @@ See `mu4easy-context' for function signature."
          (custom-reevaluate-setting 'org-msg-posting-style)
          (custom-reevaluate-setting 'org-msg-greeting-name-limit)
          (custom-reevaluate-setting 'org-msg-convert-citation))))
-
-
-
-
-
-
 
 (provide 'mu4easy)
 ;;; mu4easy.el ends here
