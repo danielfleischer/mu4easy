@@ -68,42 +68,22 @@ See also `org-msg-greeting-fmt'."
 (setq mail-user-agent 'mu4e-user-agent)
 
 
-;;; TODO: bind keys
-;;   :bind (("C-c u" . mu4e)
-;;          :map mu4e-main-mode-map
-;;          ("x" . bury-buffer)
-;;          ("I" . mu4e-update-index)
-;;          ("U" . mu4easy-update-mail-and-index)))
 
 
 
-;;; mu4e-icalendar
-(setq mu4e-icalendar-trash-after-reply nil
-      mu4e-icalendar-diary-file diary-file)
 (mu4e-icalendar-setup)
-
-;;; TODO: bind keys
-;;   :bind (:map mu4e-headers-mode-map
-;;               ("M" . mu4e-headers-mark-all)
-;;               ("N" . mu4e-headers-mark-all-unread-read)))
-
-
 (mu4e-column-faces-mode)
-
-
 (mu4e-alert-enable-notifications)
 (mu4e-alert-enable-mode-line-display)
+(org-msg-mode)
 
 
-;;; TODO: bind keys
-;; :bind
-;; (("C-c h h c" . 'helm-mu-contacts)
-;;  (:map mu4e-search-minor-mode-map
-;;        ("s" . helm-mu)))
+;;; Variables
+(setq mu4e-icalendar-trash-after-reply nil
+      mu4e-icalendar-diary-file diary-file)
 
 (setq helm-mu-append-implicit-wildcard nil
       helm-mu-gnu-sed-program "gsed")
-
 
 (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick"
       org-msg-startup "hidestars indent inlineimages"
@@ -115,8 +95,6 @@ See also `org-msg-greeting-fmt'."
       org-msg-posting-style 'top-posting
       org-msg-greeting-name-limit 2
       org-msg-convert-citation t)
-
-(org-msg-mode)
 
 (defun mu4easy-mail-link-description (msg)
   "Creating a link description to be used with `org-store-link'.
@@ -132,38 +110,21 @@ Argument MSG msg at point."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Hooks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(add-hook 'mu4e-view-mode-hook
-          (lambda ()
-            (local-set-key (kbd "<tab>") 'shr-next-link)
-            (local-set-key (kbd "<backtab>") 'shr-previous-link)))
+(defun mu4easy--org-msg-hook ()
+  (set-fill-column 120)
+  (turn-on-auto-fill)
+  (electric-indent-local-mode -1)
+  (turn-on-flyspell))
 
-(add-hook 'org-msg-edit-mode-hook
-          (lambda ()
-            (set-fill-column 120)
-            (turn-on-auto-fill)
-            (electric-indent-local-mode -1)
-            (turn-on-flyspell )))
+(defun mu4easy--compose-hook ()
+  (set-fill-column 120)
+  (turn-on-auto-fill)
+  (electric-indent-local-mode -1)
+  (turn-on-flyspell))
 
-(add-hook 'mu4e-compose-mode-hook
-          (lambda ()
-            (set-fill-column 120)
-            (turn-on-auto-fill)
-            (electric-indent-local-mode -1)
-            (turn-on-flyspell)))
-
-(add-hook 'mu4e-main-mode-hook
-          (lambda () (text-scale-decrease 1)))
-
-(add-to-list 'mu4e-view-actions
-             '("Apply Email" . mu4e-action-git-apply-mbox) t)
-
-(add-hook 'mu4e-context-changed-hook
-          (lambda ()
-            (when (derived-mode-p 'mu4e-main-mode)
-              (revert-buffer))))
-
-(when (fboundp 'imagemagick-register-types)
-  (imagemagick-register-types))
+(defun mu4easy--update-buffer ()
+  (when (derived-mode-p 'mu4e-main-mode)
+    (revert-buffer)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Update specific accounts
@@ -372,85 +333,129 @@ SIG signature string; supports org formatting thanks to org-msg."
       :key   ?a
       :hide-unread t))
   "Preconfigured bookmarks for easy navigation.
-
 See variable `mu4e-bookmarks'."
   :type '(repeat (plist)))
 
-(setq mu4e-bookmarks mu4easy-bookmarks)
-
-(setq mu4e-headers-fields
+(defcustom mu4easy-headers
       '((:human-date   . 18)
         (:flags        . 6)
         (:maildir      . 16)
         (:from-or-to   . 22)
         (:mailing-list . 10)
         (:tags         . 10)
-        (:subject      . 92)))
+        (:subject      . 92))
+      "Format of headers.
+See variable `mu4e-headers-fields'"
+      :type '(repeat (cons symbol integer)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Mail Identities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defcustom mu4easy-contexts
-      `((mu4easy-context
-          :c-name  "Google"
-          :maildir "Gmail"
-          :mail    "a@gmail.com"
-          :smtp    "smtp.gmail.com"
-          :sent-action delete)
+  `((mu4easy-context
+     :c-name  "Google"
+     :maildir "Gmail"
+     :mail    "a@gmail.com"
+     :smtp    "smtp.gmail.com"
+     :sent-action delete)
 
-        (mu4easy-context
-          :c-name  "1-GMX"
-          :maildir "GMX"
-          :mail    "a@gmx.com"
-          :smtp    "mail.gmx.com")
+    (mu4easy-context
+     :c-name  "1-GMX"
+     :maildir "GMX"
+     :mail    "a@gmx.com"
+     :smtp    "mail.gmx.com")
 
-        (mu4easy-context
-         :c-name    "2-GMX-alias"
-         :maildir   "GMX"
-         :mail      "a.alias@gmx.com"
-         :smtp      "mail.gmx.com"
-         :smtp-mail "a@gmx.com")
+    (mu4easy-context
+     :c-name    "2-GMX-alias"
+     :maildir   "GMX"
+     :mail      "a.alias@gmx.com"
+     :smtp      "mail.gmx.com"
+     :smtp-mail "a@gmx.com")
 
-        (mu4easy-context
-         :c-name  "Apple"
-         :maildir "Apple"
-         :mail    "a@icloud.com"
-         :smtp    "smtp.mail.me.com")
+    (mu4easy-context
+     :c-name  "Apple"
+     :maildir "Apple"
+     :mail    "a@icloud.com"
+     :smtp    "smtp.mail.me.com")
 
-        (mu4easy-context
-         :c-name  "3-Apple-alias"
-         :maildir "Apple"
-         :mail    "a@me.com"
-         :smtp    "smtp.mail.me.com"
-         :smtp-mail "a@icloud.com")
+    (mu4easy-context
+     :c-name  "3-Apple-alias"
+     :maildir "Apple"
+     :mail    "a@me.com"
+     :smtp    "smtp.mail.me.com"
+     :smtp-mail "a@icloud.com")
 
-        (mu4easy-context
-         :c-name    "Proton"
-         :maildir   "Proton"
-         :mail      "a@protonmail.com"
-         :smtp      "127.0.0.1"
-         :smtp-type ssl
-         :smtp-port 999)
+    (mu4easy-context
+     :c-name    "Proton"
+     :maildir   "Proton"
+     :mail      "a@protonmail.com"
+     :smtp      "127.0.0.1"
+     :smtp-type ssl
+     :smtp-port 999)
 
-        (mu4easy-context
-         :c-name    "4-Proton-alias"
-         :maildir   "Proton"
-         :mail      "a@pm.com"
-         :smtp      "127.0.0.1"
-         :smtp-mail "a@protonmail.com"
-         :smtp-type ssl
-         :smtp-port 999))
-      
-      "Defining accounts and aliases.
+    (mu4easy-context
+     :c-name    "4-Proton-alias"
+     :maildir   "Proton"
+     :mail      "a@pm.com"
+     :smtp      "127.0.0.1"
+     :smtp-mail "a@protonmail.com"
+     :smtp-type ssl
+     :smtp-port 999))
+  
+  "Defining accounts and aliases.
+After changing it, reload the minor mode. 
+See `mu4easy-context' for function signature."      
+  :type '(repeat sexp))
 
-After changing it, update `mu4e-contexts' using
-    (setq mu4e-contexts (mapcar #'eval mu4easy-contexts))
+(defvar mu4easy-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c u") #'mu4e)
+    (define-key map (kbd "C-c h h c") #'helm-mu-contacts)
+    map)
+  "Keymap for the mu4easy minor mode.")
 
-See `mu4easy-context' for function signature."
-      
-      :type '(repeat sexp))
+(defun mu4easy-extra-maps ()
+  "Define additional mapping for specific modes related to mu4e."
+  (define-key mu4e-main-mode-map          (kbd "x")          #'bury-buffer)
+  (define-key mu4e-main-mode-map          (kbd "I")          #'mu4e-update-index)
+  (define-key mu4e-main-mode-map          (kbd "U")          #'mu4easy-update-mail-and-index)
+  (define-key mu4e-view-mode-map          (kbd "<tab>")      #'shr-next-link)
+  (define-key mu4e-view-mode-map          (kbd "<backtab>")  #'shr-previous-link)
+  (define-key mu4e-search-minor-mode-map  (kbd "s")          #'helm-mu)
+  (define-key mu4e-headers-mode-map       (kbd "M")          #'mu4e-headers-mark-all)
+  (define-key mu4e-headers-mode-map       (kbd "N")          #'mu4e-headers-mark-unread-read))
 
-(setq mu4e-contexts (mapcar #'eval mu4easy-contexts))
+(define-minor-mode mu4easy-mode
+  "Toggle mu4easy configuration and keymaps."
+  :lighter nil
+  :global t
+  :keymap mu4easy-map
+  (cond (mu4easy-mode
+         (mu4easy-extra-maps)
+         (add-hook 'org-msg-edit-mode-hook     mu4easy--org-msg-hook)
+         (add-hook 'mu4e-compose-mode-hook     mu4easy--compose-hook)
+         (add-hook 'mu4e-context-changed-hook  mu4easy--update-buffer)
+         (add-to-list 'mu4e-view-actions
+                      '("Apply Email" . mu4e-action-git-apply-mbox) t)
+         (setq mu4e-contexts (mapcar #'eval mu4easy-contexts))
+         (setq mu4e-bookmarks mu4easy-bookmarks)
+         (setq mu4e-headers-fields mu4easy-headers)
+         )
+        (t
+         ;; remove all the hooks
+         (remove-hook 'org-msg-edit-mode-hook     mu4easy--org-msg-hook)
+         (remove-hook 'mu4e-compose-mode-hook     mu4easy--compose-hook)
+         (remove-hook 'mu4e-context-changed-hook  mu4easy--update-buffer)
+         (custom-reevaluate-setting 'mu4e-contexts)
+         (custom-reevaluate-setting 'mu4e-bookmarks)
+         (custom-reevaluate-setting 'mu4e-headers-fields)
+         )))
+
+
+
+
+
+
 
 (provide 'mu4easy)
 ;;; mu4easy.el ends here
