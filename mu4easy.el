@@ -57,10 +57,6 @@ See also `org-msg-greeting-fmt'."
   "Signature; supports org syntax thanks to org-msg."
   :type '(string))
 
-(defcustom mu4easy-maildir "~/Mail"
-  "Location of maildirs; see mbsync configuration."
-  :type '(directory))
-
 (defcustom mu4easy-download-dir "~/Downloads"
   "Location of downloads dir."
   :type '(directory))
@@ -154,8 +150,6 @@ Argument MSG msg at point."
 Argument ALTERNATIVE passthrough agrument when advicing."
   (if current-prefix-arg '(text) alternative))
 
-(advice-add 'org-msg-get-alternatives
-            :filter-return #'mu4easy-org-msg-select-format)
 
 ;; Text Mode Signature
 (defun mu4easy-customize-org-msg (orig-fun &rest args)
@@ -235,6 +229,11 @@ SIG signature string; supports org formatting thanks to org-msg."
                                        (,refile  . ?a)
                                        (,draft   . ?d)
                                        (,spam    . ?g)))))))
+
+(defvar mu4easy-today-query "date:today..now AND NOT maildir:/Trash/ AND NOT maildir:/Spam/")
+(defvar mu4easy-trash-query "maildir:/Trash/")
+(defvar mu4easy-inbox-query "maildir:/Inbox/")
+(defvar mu4easy-unread-query "flag:new AND maildir:/Inbox/")
 
 (defcustom mu4easy-bookmarks
   `(( :name  "Unread"
@@ -352,8 +351,7 @@ See `mu4easy-context' for function signature."
   :lighter nil
   :global t
   (cond (mu4easy-mode
-         (mu4easy-maps)
-         (mu4easy-extra-maps)
+         (mu4easy--maps)
          (mu4e-icalendar-setup)
          (mu4e-column-faces-mode)
          (mu4e-alert-enable-notifications)
@@ -363,6 +361,7 @@ See `mu4easy-context' for function signature."
          (add-hook 'mu4e-compose-mode-hook     #'mu4easy--compose-hook)
          (add-hook 'mu4e-context-changed-hook  #'mu4easy--update-buffer)
          (advice-add 'org-msg-composition-parameters :around #'mu4easy-customize-org-msg)
+         (advice-add 'org-msg-get-alternatives :filter-return #'mu4easy-org-msg-select-format)
          (add-to-list 'mu4e-view-actions
                       '("Apply Email" . mu4e-action-git-apply-mbox) t)
          (setq mail-user-agent 'mu4e-user-agent)
@@ -388,7 +387,6 @@ See `mu4easy-context' for function signature."
          (setq mu4e-headers-skip-duplicates t)
          (setq mu4e-index-cleanup t)
          (setq mu4e-index-lazy-check nil)
-         (setq mu4e-maildir (expand-file-name mu4easy-maildir))
          (setq mu4e-main-hide-personal-addresses t)
          (setq mu4e-main-buffer-name "*mu4e-main*")
          (setq mu4e-mu-binary "/usr/local/bin/mu")
@@ -399,10 +397,6 @@ See `mu4easy-context' for function signature."
          (setq starttls-use-gnutls t)
          (setq message-citation-line-format "%N [%Y-%m-%d %a %H:%M] wrote:
 ")
-         (setq mu4easy-today-query "date:today..now AND NOT maildir:/Trash/ AND NOT maildir:/Spam/")
-         (setq mu4easy-trash-query "maildir:/Trash/")
-         (setq mu4easy-inbox-query "maildir:/Inbox/")
-         (setq mu4easy-unread-query "flag:new AND maildir:/Inbox/")
          (setq mu4e-icalendar-trash-after-reply nil)
          (setq mu4e-icalendar-diary-file diary-file)
          (setq helm-mu-append-implicit-wildcard nil)
@@ -423,6 +417,7 @@ See `mu4easy-context' for function signature."
          (remove-hook 'mu4e-compose-mode-hook     #'mu4easy--compose-hook)
          (remove-hook 'mu4e-context-changed-hook  #'mu4easy--update-buffer)
          (advice-remove 'org-msg-composition-parameters #'mu4easy-customize-org-msg)
+         (advice-remove 'org-msg-get-alternatives #'mu4easy-org-msg-select-format)
          (mu4e-column-faces-mode -1)
          (mu4e-alert-disable-notifications)
          (mu4e-alert-disable-mode-line-display)
@@ -450,7 +445,6 @@ See `mu4easy-context' for function signature."
          (custom-reevaluate-setting 'mu4e-headers-skip-duplicates)
          (custom-reevaluate-setting 'mu4e-index-cleanup)
          (custom-reevaluate-setting 'mu4e-index-lazy-check)
-         (custom-reevaluate-setting 'mu4e-maildir)
          (custom-reevaluate-setting 'mu4e-main-hide-personal-addresses)
          (custom-reevaluate-setting 'mu4e-main-buffer-name)
          (custom-reevaluate-setting 'mu4e-mu-binary)
@@ -460,10 +454,6 @@ See `mu4easy-context' for function signature."
          (custom-reevaluate-setting 'mu4e-use-fancy-chars)
          (custom-reevaluate-setting 'starttls-use-gnutls)
          (custom-reevaluate-setting 'message-citation-line-format)
-         (custom-reevaluate-setting 'mu4easy-today-query)
-         (custom-reevaluate-setting 'mu4easy-trash-query)
-         (custom-reevaluate-setting 'mu4easy-inbox-query)
-         (custom-reevaluate-setting 'mu4easy-unread-query)
          (custom-reevaluate-setting 'mu4e-icalendar-trash-after-reply)
          (custom-reevaluate-setting 'mu4e-icalendar-diary-file)
          (custom-reevaluate-setting 'helm-mu-append-implicit-wildcard)
