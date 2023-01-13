@@ -6,7 +6,7 @@
 ;; Keywords: mail
 ;; Homepage: https://github.com/danielfleischer/mu4easy
 ;; Version: 1.0
-;; Package-Requires: ((emacs "25.1") (use-package "2") (mu4e-column-faces "1.2.1") (mu4e-alert "1.0") (helm-mu "1.0.0") (org-msg "4.0"))
+;; Package-Requires: ((emacs "25.1") (mu4e-column-faces "1.2.1") (mu4e-alert "1.0") (helm-mu "1.0.0") (org-msg "4.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,7 +31,14 @@
 ;; and copied manually.
 
 ;;; Code:
-(require 'use-package)
+(require 'smtpmail)
+(require 'mu4e)
+(require 'mu4e-icalendar)
+(require 'mu4e-contrib)
+(require 'mu4e-column-faces)
+(require 'mu4e-alert)
+(require 'helm-mu)
+(require 'org-msg)
 
 (defgroup mu4easy nil
   "Easy configuration for mu4e."
@@ -60,62 +67,56 @@ See also `org-msg-greeting-fmt'."
 
 (setq mail-user-agent 'mu4e-user-agent)
 
-(use-package mu4e
-  :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
-  :bind (("C-c u" . mu4e)
-         :map mu4e-main-mode-map
-         ("x" . bury-buffer)
-         ("I" . mu4e-update-index)
-         ("U" . mu4easy-update-mail-and-index)))
 
-(use-package smtpmail)
+;;; TODO: bind keys
+;;   :bind (("C-c u" . mu4e)
+;;          :map mu4e-main-mode-map
+;;          ("x" . bury-buffer)
+;;          ("I" . mu4e-update-index)
+;;          ("U" . mu4easy-update-mail-and-index)))
 
-(use-package mu4e-icalendar
-  :config
-  (setq mu4e-icalendar-trash-after-reply nil
-        mu4e-icalendar-diary-file diary-file)
-  (mu4e-icalendar-setup))
 
-(use-package mu4e-contrib
-  :defer 2
-  :bind (:map mu4e-headers-mode-map
-              ("M" . mu4e-headers-mark-all)
-              ("N" . mu4e-headers-mark-all-unread-read)))
 
-(use-package mu4e-column-faces
-  :ensure t
-  :config (mu4e-column-faces-mode))
+;;; mu4e-icalendar
+(setq mu4e-icalendar-trash-after-reply nil
+      mu4e-icalendar-diary-file diary-file)
+(mu4e-icalendar-setup)
 
-(use-package mu4e-alert
-  :ensure t
-  :config
-  (mu4e-alert-enable-notifications)
-  (mu4e-alert-enable-mode-line-display))
+;;; TODO: bind keys
+;;   :bind (:map mu4e-headers-mode-map
+;;               ("M" . mu4e-headers-mark-all)
+;;               ("N" . mu4e-headers-mark-all-unread-read)))
 
-(use-package helm-mu
-  :ensure t
-  :bind
-  (("C-c h h c" . 'helm-mu-contacts)
-   (:map mu4e-search-minor-mode-map
-         ("s" . helm-mu)))
-  :config
-  (setq helm-mu-append-implicit-wildcard nil
-        helm-mu-gnu-sed-program "gsed"))
 
-(use-package org-msg
-  :ensure t
-  :config
-  (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick"
-        org-msg-startup "hidestars indent inlineimages"
-        org-msg-default-alternatives '((new           . (text html))
-                                       (reply-to-html . (text html))
-                                       (reply-to-text . (text)))
-        org-msg-signature mu4easy-signature
-        org-msg-greeting-fmt mu4easy-greeting
-        org-msg-posting-style 'top-posting
-        org-msg-greeting-name-limit 2
-        org-msg-convert-citation t)
-  (org-msg-mode))
+(mu4e-column-faces-mode)
+
+
+(mu4e-alert-enable-notifications)
+(mu4e-alert-enable-mode-line-display)
+
+
+;;; TODO: bind keys
+;; :bind
+;; (("C-c h h c" . 'helm-mu-contacts)
+;;  (:map mu4e-search-minor-mode-map
+;;        ("s" . helm-mu)))
+
+(setq helm-mu-append-implicit-wildcard nil
+      helm-mu-gnu-sed-program "gsed")
+
+
+(setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick"
+      org-msg-startup "hidestars indent inlineimages"
+      org-msg-default-alternatives '((new           . (text html))
+                                     (reply-to-html . (text html))
+                                     (reply-to-text . (text)))
+      org-msg-signature mu4easy-signature
+      org-msg-greeting-fmt mu4easy-greeting
+      org-msg-posting-style 'top-posting
+      org-msg-greeting-name-limit 2
+      org-msg-convert-citation t)
+
+(org-msg-mode)
 
 (defun mu4easy-mail-link-description (msg)
   "Creating a link description to be used with `org-store-link'.
