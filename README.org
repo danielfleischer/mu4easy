@@ -4,9 +4,7 @@
 :ID:       2021-05-09-22-31-33-d9a
 :END:
 
-Complete and working mu4e setup using =mbsync= and mu1.9+. I'm using *Google*, *Apple*, *GMX* and *Proton* together with their
-aliases. I'm loading several packages because they're nice but the main contribution is the context-generating macro
-which lets you add and manage accounts with ease.
+Complete and working mu4e setup using =mbsync= and mu1.9+. Setup includes working with *Google*, *Apple*, *GMX* and *Proton* together with aliases. There are additional packages to improve the experience; the main contribution is the context-generating macro which lets you add and manage accounts with ease. For the additional packages, =melpa= is used. 
 
 Install locally using the =load-path= variable, e.g.
 #+begin_src elisp
