@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2021-2023  Daniel Fleischer
 
-;; Author: Daniel Fleischer;;  <danflscr@gmail.com>
+;; Author: Daniel Fleischer <danflscr@gmail.com>
 ;; Keywords: mail
 ;; Homepage: https://github.com/danielfleischer/mu4easy
 ;; Version: 1.0
@@ -147,14 +147,14 @@ Argument MSG msg at point."
 ;; e.g. when participating in github discussions using email
 (defun mu4easy-org-msg-select-format (alternative)
   "Wrapping function to override email format (html/text).
-Argument ALTERNATIVE passthrough agrument when advicing."
+Argument ALTERNATIVE passthrough argument when advising."
   (if current-prefix-arg '(text) alternative))
 
 
 ;; Text Mode Signature
 (defun mu4easy-customize-org-msg (orig-fun &rest args)
   "Fix for signature and greeting when email is text.
-Argument ORIG-FUN function being adviced.
+Argument ORIG-FUN function being advised.
 Optional argument ARGS ."
   (let ((res (apply orig-fun args)))
     (when (equal (cadr args) '(text))
@@ -388,7 +388,7 @@ See `mu4easy-context' for function signature."
          (setq mu4e-index-lazy-check nil)
          (setq mu4e-main-hide-personal-addresses t)
          (setq mu4e-main-buffer-name "*mu4e-main*")
-         (setq mu4e-mu-binary "/usr/local/bin/mu")
+         (setq mu4e-mu-binary (or (executable-find "mu") "/usr/local/bin/mu"))
          (setq mu4e-org-link-desc-func 'mu4easy-mail-link-description)
          (setq mu4e-sent-messages-behavior 'sent)
          (setq mu4e-update-interval 400)

@@ -14,16 +14,24 @@ Install locally and use the =load-path= variable, e.g.:
   :config (mu4easy-mode))
 #+end_src
 
-Or install with Melpa (coming soon).
+Or install with Melpa, e.g.:
+#+begin_src elisp
+(use-package mu4easy
+  :ensure t
+  :bind ("C-c u" . mu4e)
+  :config (mu4easy-mode))
+#+end_src
 
-*Comments and suggestions are welcome*.
+Also, have =mu= in your in PATH. 
 
-- mbsync
+- mbsync Configuration
    - [[#Google][Google]]
    - [[#Apple][Apple]]
    - [[#GMX][GMX]]
    - [[#Proton][Proton]]
 - [[#mu4e][mu4e configuration]]
+
+*Comments and suggestions are welcome*.
 
 ** mbsync
 :PROPERTIES:
