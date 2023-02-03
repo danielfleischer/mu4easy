@@ -334,59 +334,59 @@ with =org-capture= as well.
 Added is a custom updating function that asks you which account to update, or by default updates all. It is bound to the
 usual "U". 
 
-Finally, setting up the accounts:
+Finally, setting up the accounts, either using customization or using code:
 #+begin_src elisp
-(defcustom mu4easy-contexts
-
-      `(,(mu4easy-context
-          :c-name  "Google"
-          :maildir "Gmail"
-          :mail    "a@gmail.com"
-          :smtp    "smtp.gmail.com"
-          :sent-action delete)
+(setq mu4easy-contexts
+      
+      '((mu4easy-context
+         :c-name  "Google"
+         :maildir "Gmail"
+         :mail    "a@gmail.com"
+         :smtp    "smtp.gmail.com"
+         :sent-action delete)
         
-        ,(mu4easy-context
-          :c-name  "1-GMX"
-          :maildir "GMX"
-          :mail    "a@gmx.com"
-          :smtp    "mail.gmx.com")
+        (mu4easy-context
+         :c-name  "1-GMX"
+         :maildir "GMX"
+         :mail    "a@gmx.com"
+         :smtp    "mail.gmx.com")
         
-        ,(mu4easy-context
-          :c-name    "2-GMX-alias"
-          :maildir   "GMX"
-          :mail      "a.alias@gmx.com"
-          :smtp      "mail.gmx.com"
-          :smtp-mail "a@gmx.com")
+        (mu4easy-context
+         :c-name    "2-GMX-alias"
+         :maildir   "GMX"
+         :mail      "a.alias@gmx.com"
+         :smtp      "mail.gmx.com"
+         :smtp-mail "a@gmx.com")
         
-        ,(mu4easy-context
-          :c-name  "Apple"
-          :maildir "Apple"
-          :mail    "a@icloud.com"
-          :smtp    "smtp.mail.me.com")
+        (mu4easy-context
+         :c-name  "Apple"
+         :maildir "Apple"
+         :mail    "a@icloud.com"
+         :smtp    "smtp.mail.me.com")
         
-        ,(mu4easy-context
-          :c-name  "3-Apple-alias"
-          :maildir "Apple"
-          :mail    "a@me.com"
-          :smtp    "smtp.mail.me.com"
-          :smtp-mail "a@icloud.com")
+        (mu4easy-context
+         :c-name  "3-Apple-alias"
+         :maildir "Apple"
+         :mail    "a@me.com"
+         :smtp    "smtp.mail.me.com"
+         :smtp-mail "a@icloud.com")
         
-        ,(mu4easy-context
-          :c-name    "Proton"
-          :maildir   "Proton"
-          :mail      "a@protonmail.com"
-          :smtp      "127.0.0.1"
-          :smtp-type ssl
-          :smtp-port 999)
+        (mu4easy-context
+         :c-name    "Proton"
+         :maildir   "Proton"
+         :mail      "a@protonmail.com"
+         :smtp      "127.0.0.1"
+         :smtp-type ssl
+         :smtp-port 999)
         
-        ,(mu4easy-context
-          :c-name    "4-Proton-alias"
-          :maildir   "Proton"
-          :mail      "a@pm.com"
-          :smtp      "127.0.0.1"
-          :smtp-mail "a@protonmail.com"
-          :smtp-type ssl
-          :smtp-port 999)))
+        (mu4easy-context
+         :c-name    "4-Proton-alias"
+         :maildir   "Proton"
+         :mail      "a@pm.com"
+         :smtp      "127.0.0.1"
+         :smtp-mail "a@protonmail.com"
+         :smtp-type ssl
+         :smtp-port 999)))
 #+end_src
 
 _Important points:_
