@@ -279,7 +279,7 @@ See variable `mu4e-headers-fields'"
 ;; Mail Identities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defcustom mu4easy-contexts
-  `((mu4easy-context
+  '((mu4easy-context
      :c-name  "Google"
      :maildir "Gmail"
      :mail    "a@gmail.com"

@@ -14,15 +14,23 @@ Install locally and use the =load-path= variable, e.g.:
   :config (mu4easy-mode))
 #+end_src
 
-Or install with Melpa, e.g.:
+Or install with Melpa. Here is an example with one email account:
 #+begin_src elisp
 (use-package mu4easy
   :ensure t
   :bind ("C-c u" . mu4e)
-  :config (mu4easy-mode))
+  :config (mu4easy-mode)
+  :custom
+  (mu4easy-contexts '((mu4easy-context
+                       :c-name  "Google"
+                       :maildir "Gmail"
+                       :mail    "a@gmail.com"
+                       :smtp    "smtp.gmail.com"
+                       :sent-action delete))))
 #+end_src
+See later more details on the =mu4easy-context= macro.
 
-Also, have =mu= in your in PATH. 
+Make sure you have =mu= in your in PATH. 
 
 - mbsync Configuration
    - [[#Google][Google]]
