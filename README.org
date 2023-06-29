@@ -1,8 +1,8 @@
-* mu4easy
-:PROPERTIES:
-:CREATED:  [2021-05-09 Sun 22:31]
-:ID:       2021-05-09-22-31-33-d9a
-:END:
+#+TITLE: mu4easy
+
+#+html: <a href="https://www.gnu.org/software/emacs/"><img alt="GNU Emacs" src="https://github.com/minad/corfu/blob/screenshots/emacs.svg?raw=true"/></a>
+#+html: <a href="https://melpa.org/#/mu4easy"><img alt="MELPA" src="https://melpa.org/packages/mu4easy-badge.svg"/></a>
+#+html: <a href="https://stable.melpa.org/#/mu4easy"><img src="https://stable.melpa.org/packages/mu4easy-badge.svg"></a>
 
 A global minor mode that defines a full working setup for mu4e and =mbsync=, based on mu 1.8+. Easily setup accounts and aliases from these providers: *Google*, *Apple*, *GMX* and *Proton*. Additional packages are installed and configured for a better experience, including =mu4e-column-faces=, =mu4e-alert=, =org-msg= and =helm-mu=. Some customizations are available, run =(customize-group 'mu4easy)=. 
 
