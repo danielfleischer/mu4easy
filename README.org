@@ -63,8 +63,8 @@ Host imap.gmail.com
 User a@gmail.com
 PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine imap.gmail.com login a@gmail.com/ {print $NF}'"
 AuthMechs LOGIN
-SSLType IMAPS
-SSLVersions TLSv1.2
+TLSType IMAPS
+TLSVersions +1.2
 CertificateFile /usr/local/etc/openssl@1.1/cert.pem
 
 MaildirStore Gmail-local
@@ -143,8 +143,8 @@ PORT 993
 User a@icloud.com
 PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine imap.mail.me.com/ {print $NF}'"
 AuthMechs LOGIN
-SSLType IMAPS
-SSLVersion TLSv1.2
+TLSType IMAPS
+TLSVersions +1.2
 CertificateFile /usr/local/etc/openssl@1.1/cert.pem
 
 MaildirStore Apple-local
@@ -191,8 +191,8 @@ Host imap.gmx.com
 User a@gmx.com
 PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine imap.gmx.com login a@gmx.com/ {print $NF}'"
 AuthMechs LOGIN
-SSLType IMAPS
-SSLVersion TLSv1.2
+TLSType IMAPS
+TLSVersions +1.2
 CertificateFile /usr/local/etc/openssl@1.1/cert.pem
 
 MaildirStore GMX-local
@@ -225,8 +225,8 @@ PORT 1111
 User a@protonmail.com
 PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine 127.0.0.1/ {print $NF}'"
 AuthMechs LOGIN
-SSLType STARTTLS
-SSLVersion TLSv1.2
+TLSType STARTTLS
+TLSVersions +1.2
 CertificateFile /usr/local/etc/openssl@1.1/cert.pem
 
 MaildirStore Proton-local
