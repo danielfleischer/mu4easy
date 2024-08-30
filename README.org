@@ -4,10 +4,7 @@
 #+html: <a href="https://melpa.org/#/mu4easy"><img alt="MELPA" src="https://melpa.org/packages/mu4easy-badge.svg"/></a>
 #+html: <a href="https://stable.melpa.org/#/mu4easy"><img src="https://stable.melpa.org/packages/mu4easy-badge.svg"></a>
 
-A global minor mode that defines a full working setup for mu4e and =mbsync=, based on mu 1.12+. Easily setup accounts and
-aliases from these providers: *Google*, *Apple*, *GMX*, *Outlook*, and *Proton*. Additional packages are installed and configured for a
-better experience, including =mu4e-column-faces=, =mu4e-alert=, and =org-msg=. Some customizations are available, run
-=(customize-group 'mu4easy)=.
+A global minor mode that defines a full working setup for mu4e and =mbsync=, based on mu 1.12+. Easily setup accounts and aliases from these providers: *Google*, *Apple*, *GMX*, *Outlook*, and *Proton*. Additional packages are installed and configured for a better experience, including =mu4e-column-faces=, =mu4e-alert=, and =org-msg=. Some customizations are available, run =(customize-group 'mu4easy)=.
 
 Install locally and use the =load-path= variable, e.g.:
 #+begin_src elisp
@@ -33,7 +30,7 @@ Or install with Melpa. Here is an example with one email account:
 #+end_src
 See later more details on the =mu4easy-context= macro.
 
-Make sure you have =mu= in your in PATH. 
+Make sure you have =mu= in your in PATH.
 
 - =mbsync= Configurations:
    - [[#Google][Google]]
@@ -50,9 +47,7 @@ Make sure you have =mu= in your in PATH.
 :CREATED:  [2021-05-09 Sun 22:39]
 :END:
 
-The important part is to normalize all accounts to have the same structure, containing the folders Inbox, Archive, Sent,
-Trash, Drafts and Spam. I would advice against syncing the Drafts folder because it can lead to issues. If you decide
-not to sync it, just remove the relevant lines from the =.mbsyncrc= file. *We assume isync 1.5.0 or newer*. 
+The important part is to normalize all accounts to have the same structure, containing the folders Inbox, Archive, Sent, Trash, Drafts and Spam. I would advice against syncing the Drafts folder because it can lead to issues. If you decide not to sync it, just remove the relevant lines from the =.mbsyncrc= file. *We assume isync 1.5.0 or newer*.
 
 Let's go over each provider and examine the gotchas.
 
@@ -102,7 +97,7 @@ CopyArrivalDate yes
 Create Both
 Expunge Both
 SyncState *
-    
+
 Channel Gmail-all
 Far :Gmail-remote:"[Gmail]/All Mail"
 Near :Gmail-local:"Archive"
@@ -127,14 +122,11 @@ Channel Gmail-spam
 Channel Gmail-drafts
 #+end_src
 
-First is the =PassCmd=. I assume all passwords (and application specific passwords) are in =~/.authinfo.gpg= with the
-password key-value pair last (see the =NF= variable in =awk= pointing to the last column).
+First is the =PassCmd=. I assume all passwords (and application specific passwords) are in =~/.authinfo.gpg= with the password key-value pair last (see the =NF= variable in =awk= pointing to the last column).
 
-Next, Google has the structure =[Gmail]/...= so we use explicit far/near definitions. We'll drop them in the next
-providers.
+Next, Google has the structure =[Gmail]/...= so we use explicit far/near definitions. We'll drop them in the next providers.
 
-Finally, unlike other providers, we're not going to sync the Sent folders because Google is saving all email in the All
-Mails folders and you'll end up with duplicates locally.
+Finally, unlike other providers, we're not going to sync the Sent folders because Google is saving all email in the All Mails folders and you'll end up with duplicates locally.
 
 *** Apple
 :PROPERTIES:
@@ -167,7 +159,7 @@ CopyArrivalDate yes
 Create Both
 Expunge Both
 SyncState *
-    
+
 Channel Apple-sent
 Far :Apple-remote:"Sent Messages"
 Near :Apple-local:"Sent"
@@ -181,8 +173,7 @@ Channel Apple-sent
 Channel Apple-all
 #+end_src
 
-Here we use the =Patterns= key to quickly select the folders we're interested in. It turns the Sent folders has many
-conventions; at Apple it's called Sent Messages.
+Here we use the =Patterns= key to quickly select the folders we're interested in. It turns the Sent folders has many conventions; at Apple it's called Sent Messages.
 
 *** GMX
 :PROPERTIES:
@@ -302,8 +293,7 @@ Expunge Both
 SyncState *
 #+end_src
 
-In order to us Proton, one needs to install a bridge application. It specifies the IMAP and SMTP ports to use
-(non-standard).
+In order to us Proton, one needs to install a bridge application. It specifies the IMAP and SMTP ports to use (non-standard).
 
 ** mu4e
 :PROPERTIES:
@@ -325,10 +315,7 @@ Let's go over the important parts of the elisp code.
                             (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))))
 #+end_src
 
-Gmail requires special treatment for *archiving* and *deletion*, since folders are labels and everything exist in the =All
-Mail=, in addition to other "locations" like =Inbox=, =Sent=, etc. Here, we deal with Gmail by regex matching with the
-maildir name; adapt if needed. In this example, archiving for Gmail means removing the email (from the Inbox) while for
-other providers it means moving the email. Similar notion for deletion.
+Gmail requires special treatment for *archiving* and *deletion*, since folders are labels and everything exist in the =All Mail=, in addition to other "locations" like =Inbox=, =Sent=, etc. Here, we deal with Gmail by regex matching with the maildir name; adapt if needed. In this example, archiving for Gmail means removing the email (from the Inbox) while for other providers it means moving the email. Similar notion for deletion.
 
 #+begin_src elisp
 (cl-defmacro mu4easy-context (&key c-name maildir mail smtp
@@ -339,12 +326,12 @@ other providers it means moving the email. Similar notion for deletion.
                                    (name "Daniel Fleischer")
                                    (sig "Daniel Fleischer"))
   (let
-      ((inbox      (concat "/" maildir "/Inbox"))  
+      ((inbox      (concat "/" maildir "/Inbox"))
        (sent       (concat "/" maildir "/Sent"))
        (trash      (concat "/" maildir "/Trash"))
        (refile     (concat "/" maildir "/Archive"))
        (draft      (concat "/" maildir "/Drafts")))
-    
+
     `(make-mu4e-context
       :name ,c-name
       :match-func (lambda (msg)
@@ -366,7 +353,7 @@ other providers it means moving the email. Similar notion for deletion.
               (smtpmail-debug-info . t)
               (smtpmail-debug-verbose . t)
               (org-msg-signature . ,sig)
-              (mu4e-maildir-shortcuts . 
+              (mu4e-maildir-shortcuts .
                                       ((,inbox   . ?i)
                                        (,sent    . ?s)
                                        (,trash   . ?t)
@@ -374,60 +361,48 @@ other providers it means moving the email. Similar notion for deletion.
                                        (,draft   . ?d)))))))
 #+end_src
 
-That's the macro to create contexts or identities. It's assuming you have a consistent maildirs structure, like
-specified in the =mbsync= config, i.e. all account names are on a single level and then below them you have Inbox,
-Archive, Trash, Sent, Spam and Drafts for each one. To match the context I'm just looking at the maildir the message is
-in. Some defaults in the function are the SMTP encryption and what to do with sent messages (either delete them in the
-case of Google or save them in the Sent folder; more on that in the contexts examples).
+That's the macro to create contexts or identities. It's assuming you have a consistent maildirs structure, like specified in the =mbsync= config, i.e. all account names are on a single level and then below them you have Inbox, Archive, Trash, Sent, Spam and Drafts for each one. To match the context I'm just looking at the maildir the message is in. Some defaults in the function are the SMTP encryption and what to do with sent messages (either delete them in the case of Google or save them in the Sent folder; more on that in the contexts examples).
 
-Next there are some variables settings; these are set to taste, feel free to experiment with them. Next are the
-bookmarks, which are very convenient both for jumping and for reading the read/unread counts.
+Next there are some variables settings; these are set to taste, feel free to experiment with them. Next are the bookmarks, which are very convenient both for jumping and for reading the read/unread counts.
 
-*Tip*: the bookmarks query can be either a function or a string. If it's a function, there is no read/unread count. I'm
-using a string generated from a function; if you first eval the string and then set the variable, you do get counts.
+*Tip*: the bookmarks query can be either a function or a string. If it's a function, there is no read/unread count. I'm using a string generated from a function; if you first eval the string and then set the variable, you do get counts.
 
-For *org-msg* package users, notice that the package itself handles the signature, so you want to define ~org-msg-signature~
-like I did in the macro. It accepts =org= formatting, e.g. ~*Daniel Fleischer*\n/Skynet Inc/~ and then converts it into
-formatted HTML. Also, when using *org-msg*, reply style is /top-posting/ so you need it to handle the signature correctly
-(above the replied text).
+For *org-msg* package users, notice that the package itself handles the signature, so you want to define ~org-msg-signature~ like I did in the macro. It accepts =org= formatting, e.g. ~*Daniel Fleischer*\n/Skynet Inc/~ and then converts it into formatted HTML. Also, when using *org-msg*, reply style is /top-posting/ so you need it to handle the signature correctly (above the replied text).
 
-Another improvement is creating a customized link description; i.e. calling ~org-store-link~ to save a link to an email,
-it uses ~mu4easy-mail-link-description~ which will give a nice description of the form =to/from: subject (ISO timestamp)= - works
-with =org-capture= as well.
+Another improvement is creating a customized link description; i.e. calling ~org-store-link~ to save a link to an email, it uses ~mu4easy-mail-link-description~ which will give a nice description of the form =to/from: subject (ISO timestamp)= - works with =org-capture= as well.
 
-Added is a custom updating function that asks you which account to update, or by default updates all. It is bound to the
-usual "U". 
+Added is a custom updating function that asks you which account to update, or by default updates all. It is bound to the usual "U".
 
 Finally, setting up the accounts, either using customization or using code:
 #+begin_src elisp
 (setq mu4easy-contexts
-      
+
       '((mu4easy-context
          :c-name  "Google"
          :maildir "Gmail"
          :mail    "a@gmail.com"
          :smtp    "smtp.gmail.com"
          :sent-action delete)
-        
+
         (mu4easy-context
          :c-name  "1-GMX"
          :maildir "GMX"
          :mail    "a@gmx.com"
          :smtp    "mail.gmx.com")
-        
+
         (mu4easy-context
          :c-name    "2-GMX-alias"
          :maildir   "GMX"
          :mail      "a.alias@gmx.com"
          :smtp      "mail.gmx.com"
          :smtp-mail "a@gmx.com")
-        
+
         (mu4easy-context
          :c-name  "Apple"
          :maildir "Apple"
          :mail    "a@icloud.com"
          :smtp    "smtp.mail.me.com")
-        
+
         (mu4easy-context
          :c-name  "3-Apple-alias"
          :maildir "Apple"
@@ -440,7 +415,7 @@ Finally, setting up the accounts, either using customization or using code:
          :maildir "Outlook"
          :mail    "a@outlook.com"
          :smtp    "smtp-mail.outlook.com")
-        
+
         (mu4easy-context
          :c-name    "Proton"
          :maildir   "Proton"
@@ -448,7 +423,7 @@ Finally, setting up the accounts, either using customization or using code:
          :smtp      "127.0.0.1"
          :smtp-type ssl
          :smtp-port 999)
-        
+
         (mu4easy-context
          :c-name    "4-Proton-alias"
          :maildir   "Proton"
@@ -461,23 +436,15 @@ Finally, setting up the accounts, either using customization or using code:
 
 _Important points:_
 1. Jumping to contexts is based on their first (unique) letter, that's why I'm using numbers in the =c-name= key.
-2. Google saves the sent messages in the All Mail (Archive) folder so it is recommended to set the corresponding mu4e
-   setting to delete sent messages (locally). It's only for Google; for the other account, sent messages are saved in
-   the Sent folder.
-3. The =2-GMX= account is an alias - not another GMX account (see the last comment). It has a different mail, but the SMTP
-   authentication needs the real email address. The outgoing email still looks like it is coming from the alias.
-4. Proton account needs SSL encryption for SMTP, it connects to =localhost= and uses non-standard ports for IMAP and SMTP
-   (check the Proton bridge app for details).
-5. If you have multiple accounts with the same providers, they should have different maildirs, e.g. =~/Mail/Gmail1/=,
-   =~/Mail/Gmail2/=. Here I showed aliases, not multiple accounts.
-   
+2. Google saves the sent messages in the All Mail (Archive) folder so it is recommended to set the corresponding mu4e setting to delete sent messages (locally). It's only for Google; for the other account, sent messages are saved in the Sent folder.
+3. The =2-GMX= account is an alias - not another GMX account (see the last comment). It has a different mail, but the SMTP authentication needs the real email address. The outgoing email still looks like it is coming from the alias.
+4. Proton account needs SSL encryption for SMTP, it connects to =localhost= and uses non-standard ports for IMAP and SMTP (check the Proton bridge app for details).
+5. If you have multiple accounts with the same providers, they should have different maildirs, e.g. =~/Mail/Gmail1/=, =~/Mail/Gmail2/=. Here I showed aliases, not multiple accounts.
+
 ** Disclaimer
 :PROPERTIES:
 :CREATED:  [2021-05-09 Sun 22:32]
 :ID:       2AECA758-B861-446B-B73E-C34DDF6EBD3F
 :END:
 
-This setup is based upon a couple of weeks worth of tweaking, trial and error. It's not perfect; some email were lost
-(those not saved into =sent=), lessons were learned. I didn't try it with Microsoft-based emails. Make sure to test
-everything you do - to see that emails are going in and out, saved in =Archive= and =Sent=, compare the results with the
-web-based interface until you get comfortable using it 100% of the time. Or not.
+This setup is based upon a couple of weeks worth of tweaking, trial and error. It's not perfect; some email were lost (those not saved into =sent=), lessons were learned. I didn't try it with Microsoft-based emails. Make sure to test everything you do - to see that emails are going in and out, saved in =Archive= and =Sent=, compare the results with the web-based interface until you get comfortable using it 100% of the time. Or not.
