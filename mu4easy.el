@@ -6,7 +6,7 @@
 ;; Keywords: mail
 ;; Homepage: https://github.com/danielfleischer/mu4easy
 ;; Version: 1.0
-;; Package-Requires: ((emacs "25.1") (mu4e-column-faces "1.2.1") (mu4e-alert "1.0") (helm-mu "1.0.0") (org-msg "4.0"))
+;; Package-Requires: ((emacs "25.1") (mu4e-column-faces "1.2.1") (mu4e-alert "1.0") (org-msg "4.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -26,9 +26,14 @@
 ;; This package contains a collection of packages and configurations
 ;; making it easy and fun to use email with Emacs using mu, mu4e, mbsync
 ;; and other improvements. The setup supports multiple email providers
-;; such as Google, Apple, GMX and Proton. In addition to this elisp
-;; package, there is an mbsync configuration that needs to be changed
-;; and copied manually.
+;; such as Google, Apple, GMX, Outlook and Proton. In addition to this
+;; elisp package, there is an mbsync configuration that needs to be
+;; changed and copied manually.
+
+;; Please check out the repository
+;; https://github.com/danielfleischer/mu4easy as it contains
+;; documentation and an mbsync configuration example, which will not be
+;; installed when installing the package with MELPA.
 
 ;;; Code:
 (require 'smtpmail)
@@ -37,7 +42,6 @@
 (require 'mu4e-contrib)
 (require 'mu4e-column-faces)
 (require 'mu4e-alert)
-(require 'helm-mu)
 (require 'org-msg)
 
 (defgroup mu4easy nil
@@ -126,9 +130,13 @@ Argument MSG msg at point."
               :prompt "dtrash"
               :dyn-target (lambda (target msg) (mu4e-get-trash-folder msg))
               ;; Here's the main difference to the regular trash mark, no +T
-              ;; before -N so the message is not marked as IMAP-deleted:
+              ;; before -N so the message is not marked as IMAP-deleted, unless
+              ;; it's Gmail.
               :action (lambda (docid msg target)
-                        (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))
+                        (let ((maildir (mu4e-message-field msg :maildir)))
+                          (if (string-match-p "Gmail\\|Google" maildir)
+                              (mu4e--server-move docid (mu4e--mark-check-target target) "+T+S-u-N")
+                            (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Consistent Refile
@@ -137,8 +145,12 @@ Argument MSG msg at point."
       '(:char ("r" . "▶")
               :prompt "refile"
               :dyn-target (lambda (target msg) (mu4e-get-refile-folder msg))
+              ;; Notice the special treatment for Gmail.
               :action (lambda (docid msg target)
-                        (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))
+                        (let ((maildir (mu4e-message-field msg :maildir)))
+                          (if (string-match-p "Gmail\\|Google" maildir)
+                              (mu4e--server-remove docid)
+                            (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Respond in text-mode if prefix
@@ -212,13 +224,10 @@ SIG signature string; supports org formatting thanks to org-msg."
               (mu4e-compose-signature . (concat ,sig))
               (mu4e-compose-format-flowed . t)
               (mu4e-sent-messages-behavior . ,sent-action)
-              (smtpmail-smtp-user . ,smtp-mail)
-              (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
-              (smtpmail-auth-credentials . '((,smtp ,smtp-port ,smtp-mail nil)))
-              (smtpmail-default-smtp-server . ,smtp)
-              (smtpmail-smtp-server . ,smtp)
               (smtpmail-stream-type . ,smtp-type)
               (smtpmail-smtp-service . ,smtp-port)
+              (smtpmail-smtp-user . ,smtp-mail)
+              (smtpmail-smtp-server . ,smtp)
               (smtpmail-debug-info . t)
               (smtpmail-debug-verbose . t)
               (org-msg-signature . ,sig)
@@ -341,7 +350,6 @@ See `mu4easy-context' for function signature."
   (define-key mu4e-main-mode-map          (kbd "U")          #'mu4easy-update-mail-and-index)
   (define-key mu4e-view-mode-map          (kbd "<tab>")      #'shr-next-link)
   (define-key mu4e-view-mode-map          (kbd "<backtab>")  #'shr-previous-link)
-  (define-key mu4e-search-minor-mode-map  (kbd "s")          #'helm-mu)
   (define-key mu4e-headers-mode-map       (kbd "M")          #'mu4e-headers-mark-all)
   (define-key mu4e-headers-mode-map       (kbd "N")          #'mu4e-headers-mark-all-unread-read))
 
@@ -397,8 +405,6 @@ See `mu4easy-context' for function signature."
 ")
          (setq mu4e-icalendar-trash-after-reply nil)
          (setq mu4e-icalendar-diary-file diary-file)
-         (setq helm-mu-append-implicit-wildcard nil)
-         (setq helm-mu-gnu-sed-program "gsed")
          (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick")
          (setq org-msg-startup "hidestars indent inlineimages")
          (setq org-msg-default-alternatives '((new           . (text html))
@@ -452,8 +458,6 @@ See `mu4easy-context' for function signature."
          (custom-reevaluate-setting 'message-citation-line-format)
          (custom-reevaluate-setting 'mu4e-icalendar-trash-after-reply)
          (custom-reevaluate-setting 'mu4e-icalendar-diary-file)
-         (custom-reevaluate-setting 'helm-mu-append-implicit-wildcard)
-         (custom-reevaluate-setting 'helm-mu-gnu-sed-program)
          (custom-reevaluate-setting 'org-msg-options)
          (custom-reevaluate-setting 'org-msg-startup)
          (custom-reevaluate-setting 'org-msg-default-alternatives)

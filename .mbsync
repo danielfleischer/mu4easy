@@ -124,7 +124,6 @@ SyncState *
 
 IMAPAccount Apple
 Host imap.mail.me.com
-PORT 993
 User a@icloud.com
 PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine imap.mail.me.com/ {print $NF}'"
 AuthMechs LOGIN
@@ -162,3 +161,51 @@ Channel Apple-sent
 Channel Apple-all
 
 ####################################################################
+
+IMAPAccount Outlook
+Host outlook.office365.com
+User a@outlook.com
+PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine outlook.office365.com login a@outlook.com/ {print $NF}'"
+AuthMechs LOGIN
+TLSType IMAPS
+TLSVersions +1.2
+
+MaildirStore Outlook-local
+Path ~/Mail/Outlook/
+Inbox ~/Mail/Outlook/Inbox
+SubFolders Verbatim
+
+IMAPStore Outlook-remote
+Account Outlook
+
+Channel Outlook-all
+Far :Outlook-remote:
+Near :Outlook-local:
+Patterns "INBOX" "Archive" "Sent"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Channel Outlook-junk
+Far :Outlook-remote:"Junk"
+Near :Outlook-local:"Spam"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Channel Outlook-trash
+Far :Outlook-remote:"Deleted"
+Near :Outlook-local:"Trash"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Group Outlook
+Channel Outlook-all
+Channel Outlook-junk
+Channel Outlook-trash
+
+########################################################################
