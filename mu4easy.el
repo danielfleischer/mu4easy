@@ -322,6 +322,12 @@ See variable `mu4e-headers-fields'"
      :smtp-mail "a@icloud.com")
 
     (mu4easy-context
+     :c-name  "Outlook"
+     :maildir "Outlook"
+     :mail    "a@outlook.com"
+     :smtp    "smtp-mail.outlook.com")
+
+    (mu4easy-context
      :c-name    "Proton"
      :maildir   "Proton"
      :mail      "a@protonmail.com"
