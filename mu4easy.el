@@ -6,7 +6,7 @@
 ;; Keywords: mail
 ;; Homepage: https://github.com/danielfleischer/mu4easy
 ;; Version: 1.0
-;; Package-Requires: ((emacs "25.1") (mu4e-column-faces "1.2.1") (mu4e-alert "1.0") (helm-mu "1.0.0") (org-msg "4.0"))
+;; Package-Requires: ((emacs "25.1") (mu4e-column-faces "1.2.1") (mu4e-alert "1.0") (org-msg "4.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -37,7 +37,6 @@
 (require 'mu4e-contrib)
 (require 'mu4e-column-faces)
 (require 'mu4e-alert)
-(require 'helm-mu)
 (require 'org-msg)
 
 (defgroup mu4easy nil
@@ -341,7 +340,6 @@ See `mu4easy-context' for function signature."
   (define-key mu4e-main-mode-map          (kbd "U")          #'mu4easy-update-mail-and-index)
   (define-key mu4e-view-mode-map          (kbd "<tab>")      #'shr-next-link)
   (define-key mu4e-view-mode-map          (kbd "<backtab>")  #'shr-previous-link)
-  (define-key mu4e-search-minor-mode-map  (kbd "s")          #'helm-mu)
   (define-key mu4e-headers-mode-map       (kbd "M")          #'mu4e-headers-mark-all)
   (define-key mu4e-headers-mode-map       (kbd "N")          #'mu4e-headers-mark-all-unread-read))
 
@@ -397,8 +395,6 @@ See `mu4easy-context' for function signature."
 ")
          (setq mu4e-icalendar-trash-after-reply nil)
          (setq mu4e-icalendar-diary-file diary-file)
-         (setq helm-mu-append-implicit-wildcard nil)
-         (setq helm-mu-gnu-sed-program "gsed")
          (setq org-msg-options "html-postamble:nil H:5 num:nil ^:{} toc:nil author:nil email:nil \\n:t tex:imagemagick")
          (setq org-msg-startup "hidestars indent inlineimages")
          (setq org-msg-default-alternatives '((new           . (text html))
@@ -452,8 +448,6 @@ See `mu4easy-context' for function signature."
          (custom-reevaluate-setting 'message-citation-line-format)
          (custom-reevaluate-setting 'mu4e-icalendar-trash-after-reply)
          (custom-reevaluate-setting 'mu4e-icalendar-diary-file)
-         (custom-reevaluate-setting 'helm-mu-append-implicit-wildcard)
-         (custom-reevaluate-setting 'helm-mu-gnu-sed-program)
          (custom-reevaluate-setting 'org-msg-options)
          (custom-reevaluate-setting 'org-msg-startup)
          (custom-reevaluate-setting 'org-msg-default-alternatives)
