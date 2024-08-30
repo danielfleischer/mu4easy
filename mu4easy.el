@@ -125,9 +125,13 @@ Argument MSG msg at point."
               :prompt "dtrash"
               :dyn-target (lambda (target msg) (mu4e-get-trash-folder msg))
               ;; Here's the main difference to the regular trash mark, no +T
-              ;; before -N so the message is not marked as IMAP-deleted:
+              ;; before -N so the message is not marked as IMAP-deleted, unless
+              ;; it's Gmail.
               :action (lambda (docid msg target)
-                        (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))
+                        (let ((maildir (mu4e-message-field msg :maildir)))
+                          (if (string-match-p "Gmail\\|Google" maildir)
+                              (mu4e--server-move docid (mu4e--mark-check-target target) "+T+S-u-N")
+                            (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Consistent Refile
@@ -136,8 +140,12 @@ Argument MSG msg at point."
       '(:char ("r" . "▶")
               :prompt "refile"
               :dyn-target (lambda (target msg) (mu4e-get-refile-folder msg))
+              ;; Notice the special treatment for Gmail.
               :action (lambda (docid msg target)
-                        (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))
+                        (let ((maildir (mu4e-message-field msg :maildir)))
+                          (if (string-match-p "Gmail\\|Google" maildir)
+                              (mu4e--server-remove docid)
+                            (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Respond in text-mode if prefix
