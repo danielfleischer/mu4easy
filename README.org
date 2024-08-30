@@ -4,7 +4,10 @@
 #+html: <a href="https://melpa.org/#/mu4easy"><img alt="MELPA" src="https://melpa.org/packages/mu4easy-badge.svg"/></a>
 #+html: <a href="https://stable.melpa.org/#/mu4easy"><img src="https://stable.melpa.org/packages/mu4easy-badge.svg"></a>
 
-A global minor mode that defines a full working setup for mu4e and =mbsync=, based on mu 1.8+. Easily setup accounts and aliases from these providers: *Google*, *Apple*, *GMX* and *Proton*. Additional packages are installed and configured for a better experience, including =mu4e-column-faces=, =mu4e-alert=, =org-msg= and =helm-mu=. Some customizations are available, run =(customize-group 'mu4easy)=. 
+A global minor mode that defines a full working setup for mu4e and =mbsync=, based on mu 1.12+. Easily setup accounts and
+aliases from these providers: *Google*, *Apple*, *GMX*, *Outlook*, and *Proton*. Additional packages are installed and configured for a
+better experience, including =mu4e-column-faces=, =mu4e-alert=, and =org-msg=. Some customizations are available, run
+=(customize-group 'mu4easy)=.
 
 Install locally and use the =load-path= variable, e.g.:
 #+begin_src elisp
@@ -32,10 +35,11 @@ See later more details on the =mu4easy-context= macro.
 
 Make sure you have =mu= in your in PATH. 
 
-- mbsync Configuration
+- =mbsync= Configurations:
    - [[#Google][Google]]
    - [[#Apple][Apple]]
    - [[#GMX][GMX]]
+   - [[#Outlook][Outlook]]
    - [[#Proton][Proton]]
 - [[#mu4e][mu4e configuration]]
 
@@ -48,7 +52,7 @@ Make sure you have =mu= in your in PATH.
 
 The important part is to normalize all accounts to have the same structure, containing the folders Inbox, Archive, Sent,
 Trash, Drafts and Spam. I would advice against syncing the Drafts folder because it can lead to issues. If you decide
-not to sync it, just remove the relevant lines from the =.mbsyncrc= file.
+not to sync it, just remove the relevant lines from the =.mbsyncrc= file. *We assume isync 1.5.0 or newer*. 
 
 Let's go over each provider and examine the gotchas.
 
@@ -213,6 +217,57 @@ Expunge Both
 SyncState *
 #+end_src
 
+*** Outlook
+:PROPERTIES:
+:CREATED:  [2024-08-30 Fri 15:43]
+:END:
+#+begin_src conf
+IMAPAccount Outlook
+Host outlook.office365.com
+User a@outlook.com
+PassCmd "gpg -q --for-your-eyes-only --no-tty -d ~/.authinfo.gpg | awk '/machine outlook.office365.com login a@outlook.com/ {print $NF}'"
+AuthMechs LOGIN
+TLSType IMAPS
+TLSVersions +1.2
+
+MaildirStore Outlook-local
+Path ~/Mail/Outlook/
+Inbox ~/Mail/Outlook/Inbox
+SubFolders Verbatim
+
+IMAPStore Outlook-remote
+Account Outlook
+
+Channel Outlook-all
+Far :Outlook-remote:
+Near :Outlook-local:
+Patterns "INBOX" "Archive" "Sent"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Channel Outlook-junk
+Far :Outlook-remote:"Junk"
+Near :Outlook-local:"Spam"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Channel Outlook-trash
+Far :Outlook-remote:"Deleted"
+Near :Outlook-local:"Trash"
+CopyArrivalDate yes
+Create Both
+Expunge Both
+SyncState *
+
+Group Outlook
+Channel Outlook-all
+Channel Outlook-junk
+Channel Outlook-trash
+#+end_src
 *** Proton
 :PROPERTIES:
 :CREATED:  [2021-05-09 Sun 22:49]
@@ -258,19 +313,22 @@ In order to us Proton, one needs to install a bridge application. It specifies t
 Let's go over the important parts of the elisp code.
 
 #+begin_src elisp
-(setf (alist-get 'trash mu4e-marks)
-      '(:char ("d" . "▼")
-              :prompt "dtrash"
-              :dyn-target (lambda (target msg) (mu4e-get-trash-folder msg))
-              ;; Here's the main difference to the regular trash mark, no +T
-              ;; before -N so the message is not marked as IMAP-deleted:
+(setf (alist-get 'refile mu4e-marks)
+      '(:char ("r" . "▶")
+              :prompt "refile"
+              :dyn-target (lambda (target msg) (mu4e-get-refile-folder msg))
+              ;; Notice the special treatment for Gmail.
               :action (lambda (docid msg target)
-                        (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))
+                        (let ((maildir (mu4e-message-field msg :maildir)))
+                          (if (string-match-p "Gmail\\|Google" maildir)
+                              (mu4e--server-remove docid)
+                            (mu4e--server-move docid (mu4e--mark-check-target target) "+S-u-N"))))))
 #+end_src
 
-I picked this code and realized that, at least for Google, if you flag a message =trashed=, it just disappears. This code
-instead flags the message as =seen=, removes the flags =unseen= and =new= and finally, moves it to the Trash folder, which is
-synced to the server and gets deleted according to a policy you control.
+Gmail requires special treatment for *archiving* and *deletion*, since folders are labels and everything exist in the =All
+Mail=, in addition to other "locations" like =Inbox=, =Sent=, etc. Here, we deal with Gmail by regex matching with the
+maildir name; adapt if needed. In this example, archiving for Gmail means removing the email (from the Inbox) while for
+other providers it means moving the email. Similar notion for deletion.
 
 #+begin_src elisp
 (cl-defmacro mu4easy-context (&key c-name maildir mail smtp
@@ -301,13 +359,12 @@ synced to the server and gets deleted according to a policy you control.
               (mu4e-refile-folder . ,refile)
               (mu4e-compose-signature . (concat ,sig))
               (mu4e-sent-messages-behavior . ,sent-action)
-              (smtpmail-smtp-user . ,smtp-mail)
-              (smtpmail-starttls-credentials . ((,smtp ,smtp-port nil nil)))
-              (smtpmail-auth-credentials . '((,smtp ,smtp-port ,smtp-mail nil)))
-              (smtpmail-default-smtp-server . ,smtp)
-              (smtpmail-smtp-server . ,smtp)
               (smtpmail-stream-type . ,smtp-type)
               (smtpmail-smtp-service . ,smtp-port)
+              (smtpmail-smtp-user . ,smtp-mail)
+              (smtpmail-smtp-server . ,smtp)
+              (smtpmail-debug-info . t)
+              (smtpmail-debug-verbose . t)
               (org-msg-signature . ,sig)
               (mu4e-maildir-shortcuts . 
                                       ((,inbox   . ?i)
