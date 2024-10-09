@@ -344,7 +344,6 @@ Gmail requires special treatment for *archiving* and *deletion*, since folders a
               (mu4e-drafts-folder . ,draft)
               (mu4e-trash-folder . ,trash)
               (mu4e-refile-folder . ,refile)
-              (mu4e-compose-signature . (concat ,sig))
               (mu4e-sent-messages-behavior . ,sent-action)
               (smtpmail-stream-type . ,smtp-type)
               (smtpmail-smtp-service . ,smtp-port)
