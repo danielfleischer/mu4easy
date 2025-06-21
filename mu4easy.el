@@ -213,8 +213,7 @@ SIG signature string; supports org formatting thanks to org-msg."
       :name ,c-name
       :match-func (lambda (msg)
                     (when msg
-                      (string-match-p (concat "^/" ,maildir "/")
-                                      (mu4e-message-field msg :maildir))))
+                      (string-match-p ,mail (plist-get (car (mu4e-message-field msg :to)) :email))))
       :vars '((user-mail-address . ,mail)
               (user-full-name . ,name)
               (mu4e-sent-folder . ,sent)
