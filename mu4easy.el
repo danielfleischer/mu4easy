@@ -128,7 +128,11 @@ Argument MSG msg at point."
 (setf (alist-get 'trash mu4e-marks)
       '(:char ("d" . "▼")
               :prompt "dtrash"
-              :dyn-target (lambda (target msg) (mu4e-get-trash-folder msg))
+              :dyn-target (lambda (target msg)
+                            (let* ((md (plist-get msg :maildir))
+                                   (_ (string-match "/\\(.*\\)/.*" md))
+                                   (md (match-string 1 md)))
+                              (format "/%s/Trash" md)))
               ;; Here's the main difference to the regular trash mark, no +T
               ;; before -N so the message is not marked as IMAP-deleted, unless
               ;; it's Gmail.
@@ -144,7 +148,11 @@ Argument MSG msg at point."
 (setf (alist-get 'refile mu4e-marks)
       '(:char ("r" . "▶")
               :prompt "refile"
-              :dyn-target (lambda (target msg) (mu4e-get-refile-folder msg))
+              :dyn-target (lambda (target msg)
+                            (let* ((md (plist-get msg :maildir))
+                                   (_ (string-match "/\\(.*\\)/.*" md))
+                                   (md (match-string 1 md)))
+                              (format "/%s/Archive" md)))
               ;; Notice the special treatment for Gmail.
               :action (lambda (docid msg target)
                         (let ((maildir (mu4e-message-field msg :maildir)))
